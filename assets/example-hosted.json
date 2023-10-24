@@ -1,0 +1,62 @@
+{
+    "apps": {
+        "paid": {
+            "status": 1
+        },
+        "unpaid": {
+            "status": 0,
+            "message": "The Payment of app is not done",
+            "developerDetails": {
+                "name": "someone",
+                "email": "someone@example.com"
+            }
+        },
+        "expired": {
+            "status": 0,
+            "expiryDate": "2000-1-1",
+            "message": "The Payment of app is not done",
+            "developerDetails": {
+                "name": "someone",
+                "email": "someone@example.com"
+            }
+        },
+        "counter": {
+            "status": 0,
+            "message": "The Payment of app is not done",
+            "maxLaunch": "10",
+            "developerDetails": {
+                "name": "someone",
+                "email": "someone@example.com"
+            }
+        },
+        "expired-counter": {
+            "status": 0,
+            "expiryDate": "2000-1-1",
+            "message": "The Payment of app is not done",
+            "maxLaunch": "10",
+            "developerDetails": {
+                "name": "someone",
+                "email": "someone@example.com"
+            }
+        },
+        "active-counter": {
+            "status": 0,
+            "expiryDate": "3000-1-1",
+            "message": "The Payment of app is not done",
+            "maxLaunch": "10",
+            "developerDetails": {
+                "name": "someone",
+                "email": "someone@example.com"
+            }
+        },
+        "negative-counter": {
+            "status": 0,
+            "message": "The Payment of app is not done",
+            "maxLaunch": "-1",
+            "developerDetails": {
+                "name": "someone",
+                "email": "someone@example.com"
+            }
+        }
+    }
+}
