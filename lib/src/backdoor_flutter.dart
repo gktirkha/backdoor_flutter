@@ -34,8 +34,7 @@ abstract class BackdoorFlutter {
   }) async {
     BackdoorFlutter.jsonUrl = InitService.initializeUrl(jsonUrl);
     BackdoorFlutter.appName = InitService.initializeAppName(appName);
-    BackdoorFlutter.autoDecrement =
-        InitService.initializeAutoDecrement(autoDecrementLaunchCounter);
+    BackdoorFlutter.autoDecrement = InitService.initializeAutoDecrement(autoDecrementLaunchCounter);
 
     await SharePreferenceService.init();
   }
@@ -70,8 +69,7 @@ abstract class BackdoorFlutter {
         return launchCount == null || launchCount == 0;
 
       case PaymentStatusEnum.ON_TRIAL:
-        final expiryDate =
-            (await SharePreferenceService.getPaymentModel())?.expiryDate;
+        final expiryDate = (await SharePreferenceService.getPaymentModel())?.expiryDate;
         return expiryDate != null && expiryDate.isBefore(DateTime.now());
 
       default:
@@ -83,8 +81,7 @@ abstract class BackdoorFlutter {
   ///
   /// Returns true if the status should be checked online, otherwise false.
   static Future<bool> _shouldCheckOnline() async {
-    final BackdoorPaymentModel? model =
-        await SharePreferenceService.getPaymentModel();
+    final BackdoorPaymentModel? model = await SharePreferenceService.getPaymentModel();
     if (model == null) return true;
 
     final res = await _checkFromModel(model);
@@ -106,7 +103,7 @@ abstract class BackdoorFlutter {
     required Map<String, dynamic> httpQueryParameters,
     required Map<String, dynamic> httpRequestBody,
     required String httpMethod,
-    required OnAppNotFoundINJson? onAppNotFoundInJson,
+    required OnAppNotFoundInJson? onAppNotFoundInJson,
     required bool showApiLogs,
   }) async {
     try {
@@ -139,12 +136,9 @@ abstract class BackdoorFlutter {
       );
 
       final responseData = response.data;
-      final Map<String, dynamic> jsonData = responseData is String
-          ? jsonDecode(responseData)
-          : responseData as Map<String, dynamic>;
+      final Map<String, dynamic> jsonData = responseData is String ? jsonDecode(responseData) : responseData as Map<String, dynamic>;
 
-      final paymentStatusModel =
-          BackdoorPaymentApiResponseModel.fromJson(jsonData);
+      final paymentStatusModel = BackdoorPaymentApiResponseModel.fromJson(jsonData);
 
       if (showApiLogs) {
         _logger(
@@ -195,14 +189,13 @@ abstract class BackdoorFlutter {
     Map<String, dynamic>? httpQueryParameters,
     Map<String, dynamic>? httpRequestBody,
     String httpMethod = 'GET',
-    OnAppNotFoundINJson? onAppNotFoundInNJson,
+    OnAppNotFoundInJson? onAppNotFoundInNJson,
     bool showAPILogs = kDebugMode,
   }) async {
     try {
       final checkOnline = await _shouldCheckOnline();
 
-      BackdoorPaymentModel? prefModel =
-          await SharePreferenceService.getPaymentModel();
+      BackdoorPaymentModel? prefModel = await SharePreferenceService.getPaymentModel();
 
       BackdoorPaymentModel? operationModel;
 
@@ -232,8 +225,7 @@ abstract class BackdoorFlutter {
         prefModel = operationModel;
         await SharePreferenceService.setPaymentModel(prefModel);
 
-        if (!operationModel.strictMaxLaunch &&
-            operationModel.status == PaymentStatusEnum.ALLOW_LIMITED_LAUNCHES) {
+        if (!operationModel.strictMaxLaunch && operationModel.status == PaymentStatusEnum.ALLOW_LIMITED_LAUNCHES) {
           await SharePreferenceService.setLaunchCount(operationModel.maxLaunch);
         }
       }
@@ -249,8 +241,7 @@ abstract class BackdoorFlutter {
         onTrialExpire,
       );
     } catch (e) {
-      BackdoorPaymentModel? prefModel =
-          await SharePreferenceService.getPaymentModel();
+      BackdoorPaymentModel? prefModel = await SharePreferenceService.getPaymentModel();
 
       if (prefModel != null) {
         return handelModel(
@@ -317,8 +308,7 @@ abstract class BackdoorFlutter {
         break;
 
       case PaymentStatusEnum.ON_TRIAL:
-        final expiryDate =
-            (await SharePreferenceService.getPaymentModel())?.expiryDate;
+        final expiryDate = (await SharePreferenceService.getPaymentModel())?.expiryDate;
         if (expiryDate != null && expiryDate.isAfter(DateTime.now())) {
           onTrial?.call(operationModel);
         } else {

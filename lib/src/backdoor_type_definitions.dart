@@ -55,6 +55,6 @@ typedef OnException = Function(
 /// A callback function that is triggered when an AppName is not found in json.
 ///
 /// [apiResponse] - An optional [BackdoorPaymentApiResponseModel] containing API Response.
-typedef OnAppNotFoundINJson = Function(
+typedef OnAppNotFoundInJson = Function(
   BackdoorPaymentApiResponseModel? apiResponse,
 );
