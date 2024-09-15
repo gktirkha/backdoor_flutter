@@ -1,62 +1,82 @@
 {
-    "apps": {
-        "paid": {
-            "status": 1
-        },
-        "unpaid": {
-            "status": 0,
-            "message": "The Payment of app is not done",
-            "developerDetails": {
-                "name": "someone",
-                "email": "someone@example.com"
-            }
-        },
-        "expired": {
-            "status": 0,
-            "expiryDate": "2000-1-1",
-            "message": "The Payment of app is not done",
-            "developerDetails": {
-                "name": "someone",
-                "email": "someone@example.com"
-            }
-        },
-        "counter": {
-            "status": 0,
-            "message": "The Payment of app is not done",
-            "maxLaunch": "10",
-            "developerDetails": {
-                "name": "someone",
-                "email": "someone@example.com"
-            }
-        },
-        "expired-counter": {
-            "status": 0,
-            "expiryDate": "2000-1-1",
-            "message": "The Payment of app is not done",
-            "maxLaunch": "10",
-            "developerDetails": {
-                "name": "someone",
-                "email": "someone@example.com"
-            }
-        },
-        "active-counter": {
-            "status": 0,
-            "expiryDate": "3000-1-1",
-            "message": "The Payment of app is not done",
-            "maxLaunch": "10",
-            "developerDetails": {
-                "name": "someone",
-                "email": "someone@example.com"
-            }
-        },
-        "negative-counter": {
-            "status": 0,
-            "message": "The Payment of app is not done",
-            "maxLaunch": "-1",
-            "developerDetails": {
-                "name": "someone",
-                "email": "someone@example.com"
-            }
-        }
+  "apps": {
+    "PAID": {
+      "status": "PAID",
+      "message": "Development payment has been completed.",
+      "should_check_after_paid": true
+    },
+    "UNPAID": {
+      "status": "UNPAID",
+      "message": "Development payment is due.",
+      "developer_details": {
+        "name": "Developer One",
+        "contact": "contact@developerone.com"
+      },
+      "should_check_after_paid": true
+    },
+    "ON_TRIAL": {
+      "status": "ON_TRIAL",
+      "message": "Development is currently on trial.",
+      "developer_details": {
+        "name": "Developer One",
+        "contact": "contact@developerone.com"
+      },
+      "should_check_after_paid": true,
+      "max_launch": 5,
+      "expiry_date": "2024-10-01T00:00:00.000Z"
+    },
+    "ON_TRIAL_ENDED": {
+      "status": "ON_TRIAL",
+      "message": "Development trial period has ended.",
+      "developer_details": {
+        "name": "Developer One",
+        "contact": "contact@developerone.com"
+      },
+      "should_check_after_paid": true,
+      "max_launch": 0,
+      "expiry_date": "2023-10-01T00:00:00.000Z"
+    },
+    "ALLOW_LIMITED_LAUNCHES": {
+      "status": "ALLOW_LIMITED_LAUNCHES",
+      "message": "Development is allowed with limited launches.",
+      "developer_details": {
+        "name": "Developer One",
+        "contact": "contact@developerone.com"
+      },
+      "should_check_after_paid": true,
+      "max_launch": 5
+    },
+    "ALLOW_LIMITED_LAUNCHES_WITH_NEGATIVE_MAX_LAUNCH": {
+      "status": "ALLOW_LIMITED_LAUNCHES",
+      "message": "Development is allowed with limited launches.",
+      "developer_details": {
+        "name": "Developer One",
+        "contact": "contact@developerone.com"
+      },
+      "should_check_after_paid": true,
+      "max_launch": -1
+    },
+    "ALLOW_LIMITED_LAUNCHES_STRICT_LAUNCH_FALSE": {
+      "status": "ALLOW_LIMITED_LAUNCHES",
+      "message": "Development is allowed with limited launches and no strict launch limit.",
+      "developer_details": {
+        "name": "Developer One",
+        "contact": "contact@developerone.com"
+      },
+      "should_check_after_paid": true,
+      "strict_max_launch": false,
+      "max_launch": 5
+    },
+    "ALLOW_LIMITED_LAUNCHES_WITH_NEGATIVE_MAX_LAUNCH_STRICT_LAUNCH_FALSE": {
+      "status": "ALLOW_LIMITED_LAUNCHES",
+      "message": "Development is allowed with limited launches.",
+      "developer_details": {
+        "name": "Developer One",
+        "contact": "contact@developerone.com"
+      },
+      "should_check_after_paid": true,
+      "max_launch": -1,
+      "strict_max_launch": false
     }
+  }
 }
