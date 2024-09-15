@@ -33,6 +33,9 @@ A hosted json file in following [format](assets/example-hosted.json), A single j
     - **strict_max_launch** resets max launch counter if set to false and max launch limit exceeds.
 
 # Usage
+
+> Please Refer To dart [Dart Doc Version](https://gktirkha.github.io/flutter_packages_doc/backdoor_flutter)
+
 1. add dependency
 
     ```
