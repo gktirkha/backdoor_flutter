@@ -273,27 +273,34 @@ abstract class BackdoorFlutter {
         onTargetVersionMisMatch: onTargetVersionMisMatch,
       );
     } catch (e) {
-      final BackdoorPaymentModel? operationModel = await StorageService.getPaymentModel();
-      if (operationModel != null && useCachedConfigOnNetworkCException) {
-        bool shouldCheckOnline = false;
-        return _handleExecution(
-          onPaid: onPaid,
-          onTrial: onTrial,
-          onUnPaid: onUnPaid,
-          onException: onException,
-          onUnhandled: onUnhandled,
-          onTrialEnded: onTrialEnded,
-          onAppNotFound: onAppNotFound,
-          operationModel: operationModel,
-          onTrialWarning: onTrialWarning,
-          onLimitedLaunch: onLimitedLaunch,
-          shouldCheckOnline: shouldCheckOnline,
-          onLimitedLaunchExceeded: onLimitedLaunchExceeded,
-          onTargetVersionMisMatch: onTargetVersionMisMatch,
-        );
+      try {
+        if (e is BackdoorFlutterException && e.type == BackdoorFlutterExceptionType.NETWORK_EXCEPTION) {
+          final BackdoorPaymentModel? operationModel = await StorageService.getPaymentModel();
+          if (operationModel != null && useCachedConfigOnNetworkCException) {
+            bool shouldCheckOnline = false;
+            return _handleExecution(
+              onPaid: onPaid,
+              onTrial: onTrial,
+              onUnPaid: onUnPaid,
+              onException: onException,
+              onUnhandled: onUnhandled,
+              onTrialEnded: onTrialEnded,
+              onAppNotFound: onAppNotFound,
+              operationModel: operationModel,
+              onTrialWarning: onTrialWarning,
+              onLimitedLaunch: onLimitedLaunch,
+              shouldCheckOnline: shouldCheckOnline,
+              onLimitedLaunchExceeded: onLimitedLaunchExceeded,
+              onTargetVersionMisMatch: onTargetVersionMisMatch,
+            );
+          }
+        }
+      } catch (e) {
+        _logger(e);
+        onException(_convertException(e));
       }
-      onException(_convertException(e));
       _logger(e);
+      onException(_convertException(e));
     }
   }
 
@@ -347,7 +354,8 @@ abstract class BackdoorFlutter {
         break;
 
       case PaymentStatusEnum.ALLOW_LIMITED_LAUNCHES:
-        if (operationModel.maxLaunch == null) {
+        final allowedLaunches = operationModel.maxLaunch;
+        if (allowedLaunches == null) {
           throw BackdoorFlutterException(
             message: 'max_launch not set for ALLOW_LIMITED_LAUNCHES mechanism in remote json file',
             type: BackdoorFlutterExceptionType.CONFIGURATION_EXCEPTION,
@@ -356,7 +364,7 @@ abstract class BackdoorFlutter {
         }
         if (shouldCheckOnline) {
           if (!operationModel.strictMaxLaunch) {
-            StorageService.setLaunchCount(operationModel.maxLaunch);
+            StorageService.setLaunchCount(allowedLaunches);
           }
         }
         final launchCount = await StorageService.getLaunchCount();
@@ -387,7 +395,7 @@ abstract class BackdoorFlutter {
             type: BackdoorFlutterExceptionType.CONFIGURATION_EXCEPTION,
           );
         }
-        if (warningDate != null && warningDate.isBefore(now)) {
+        if (warningDate != null && now.isAfter(warningDate) && now.isBefore(expiryDate)) {
           if (onTrialWarning != null) {
             onTrialWarning(operationModel, expiryDate, warningDate);
           }

@@ -93,8 +93,7 @@ abstract class StorageService {
   /// converting negative values to a positive multiplier (e.g., -5 becomes 500).
   ///
   /// [launchCount] The number of launches to be stored.
-  static Future<void> setLaunchCount(int? launchCount) async {
-    if (launchCount == null) return;
+  static Future<void> setLaunchCount(int launchCount) async {
     final launchToBeSet = launchCount < 0 ? launchCount * -1 * 100 : launchCount;
     await _instance.setInt(StorageServiceKeys.launchCount, launchToBeSet);
   }
