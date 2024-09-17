@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'backdoor_payment_status_model.dart';
+part of 'payment_status_model.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -192,23 +192,20 @@ BackdoorPaymentModel _$BackdoorPaymentModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$BackdoorPaymentModel {
-  @JsonKey(name: 'expiry_date')
-  DateTime? get expiryDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'status')
   PaymentStatusEnum get status => throw _privateConstructorUsedError;
-  @JsonKey(name: 'message')
-  String? get message => throw _privateConstructorUsedError;
-  @JsonKey(name: 'max_launch')
-  int? get maxLaunch => throw _privateConstructorUsedError;
-  @JsonKey(name: 'developer_details')
-  Map<String, dynamic>? get developerDetails =>
-      throw _privateConstructorUsedError;
+  @JsonKey(name: 'target_version')
+  double? get targetVersion => throw _privateConstructorUsedError;
   @JsonKey(name: 'should_check_after_paid')
   bool get shouldCheckAfterPaid => throw _privateConstructorUsedError;
+  @JsonKey(name: 'expire_date')
+  DateTime? get expireDateTime => throw _privateConstructorUsedError;
+  @JsonKey(name: 'warning_date')
+  DateTime? get warningDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'strict_max_launch')
   bool get strictMaxLaunch => throw _privateConstructorUsedError;
-  @JsonKey(name: 'min_target_build_number')
-  dynamic get minTargetBuildNumber => throw _privateConstructorUsedError;
+  @JsonKey(name: 'max_launch')
+  int? get maxLaunch => throw _privateConstructorUsedError;
 
   /// Serializes this BackdoorPaymentModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -227,15 +224,13 @@ abstract class $BackdoorPaymentModelCopyWith<$Res> {
       _$BackdoorPaymentModelCopyWithImpl<$Res, BackdoorPaymentModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'expiry_date') DateTime? expiryDate,
-      @JsonKey(name: 'status') PaymentStatusEnum status,
-      @JsonKey(name: 'message') String? message,
-      @JsonKey(name: 'max_launch') int? maxLaunch,
-      @JsonKey(name: 'developer_details')
-      Map<String, dynamic>? developerDetails,
+      {@JsonKey(name: 'status') PaymentStatusEnum status,
+      @JsonKey(name: 'target_version') double? targetVersion,
       @JsonKey(name: 'should_check_after_paid') bool shouldCheckAfterPaid,
+      @JsonKey(name: 'expire_date') DateTime? expireDateTime,
+      @JsonKey(name: 'warning_date') DateTime? warningDate,
       @JsonKey(name: 'strict_max_launch') bool strictMaxLaunch,
-      @JsonKey(name: 'min_target_build_number') dynamic minTargetBuildNumber});
+      @JsonKey(name: 'max_launch') int? maxLaunch});
 }
 
 /// @nodoc
@@ -254,48 +249,43 @@ class _$BackdoorPaymentModelCopyWithImpl<$Res,
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? expiryDate = freezed,
     Object? status = null,
-    Object? message = freezed,
-    Object? maxLaunch = freezed,
-    Object? developerDetails = freezed,
+    Object? targetVersion = freezed,
     Object? shouldCheckAfterPaid = null,
+    Object? expireDateTime = freezed,
+    Object? warningDate = freezed,
     Object? strictMaxLaunch = null,
-    Object? minTargetBuildNumber = freezed,
+    Object? maxLaunch = freezed,
   }) {
     return _then(_value.copyWith(
-      expiryDate: freezed == expiryDate
-          ? _value.expiryDate
-          : expiryDate // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
               as PaymentStatusEnum,
-      message: freezed == message
-          ? _value.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String?,
-      maxLaunch: freezed == maxLaunch
-          ? _value.maxLaunch
-          : maxLaunch // ignore: cast_nullable_to_non_nullable
-              as int?,
-      developerDetails: freezed == developerDetails
-          ? _value.developerDetails
-          : developerDetails // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+      targetVersion: freezed == targetVersion
+          ? _value.targetVersion
+          : targetVersion // ignore: cast_nullable_to_non_nullable
+              as double?,
       shouldCheckAfterPaid: null == shouldCheckAfterPaid
           ? _value.shouldCheckAfterPaid
           : shouldCheckAfterPaid // ignore: cast_nullable_to_non_nullable
               as bool,
+      expireDateTime: freezed == expireDateTime
+          ? _value.expireDateTime
+          : expireDateTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      warningDate: freezed == warningDate
+          ? _value.warningDate
+          : warningDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       strictMaxLaunch: null == strictMaxLaunch
           ? _value.strictMaxLaunch
           : strictMaxLaunch // ignore: cast_nullable_to_non_nullable
               as bool,
-      minTargetBuildNumber: freezed == minTargetBuildNumber
-          ? _value.minTargetBuildNumber
-          : minTargetBuildNumber // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+      maxLaunch: freezed == maxLaunch
+          ? _value.maxLaunch
+          : maxLaunch // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 }
@@ -309,15 +299,13 @@ abstract class _$$AppPaymentModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'expiry_date') DateTime? expiryDate,
-      @JsonKey(name: 'status') PaymentStatusEnum status,
-      @JsonKey(name: 'message') String? message,
-      @JsonKey(name: 'max_launch') int? maxLaunch,
-      @JsonKey(name: 'developer_details')
-      Map<String, dynamic>? developerDetails,
+      {@JsonKey(name: 'status') PaymentStatusEnum status,
+      @JsonKey(name: 'target_version') double? targetVersion,
       @JsonKey(name: 'should_check_after_paid') bool shouldCheckAfterPaid,
+      @JsonKey(name: 'expire_date') DateTime? expireDateTime,
+      @JsonKey(name: 'warning_date') DateTime? warningDate,
       @JsonKey(name: 'strict_max_launch') bool strictMaxLaunch,
-      @JsonKey(name: 'min_target_build_number') dynamic minTargetBuildNumber});
+      @JsonKey(name: 'max_launch') int? maxLaunch});
 }
 
 /// @nodoc
@@ -333,48 +321,43 @@ class __$$AppPaymentModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? expiryDate = freezed,
     Object? status = null,
-    Object? message = freezed,
-    Object? maxLaunch = freezed,
-    Object? developerDetails = freezed,
+    Object? targetVersion = freezed,
     Object? shouldCheckAfterPaid = null,
+    Object? expireDateTime = freezed,
+    Object? warningDate = freezed,
     Object? strictMaxLaunch = null,
-    Object? minTargetBuildNumber = freezed,
+    Object? maxLaunch = freezed,
   }) {
     return _then(_$AppPaymentModelImpl(
-      expiryDate: freezed == expiryDate
-          ? _value.expiryDate
-          : expiryDate // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
               as PaymentStatusEnum,
-      message: freezed == message
-          ? _value.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String?,
-      maxLaunch: freezed == maxLaunch
-          ? _value.maxLaunch
-          : maxLaunch // ignore: cast_nullable_to_non_nullable
-              as int?,
-      developerDetails: freezed == developerDetails
-          ? _value._developerDetails
-          : developerDetails // ignore: cast_nullable_to_non_nullable
-              as Map<String, dynamic>?,
+      targetVersion: freezed == targetVersion
+          ? _value.targetVersion
+          : targetVersion // ignore: cast_nullable_to_non_nullable
+              as double?,
       shouldCheckAfterPaid: null == shouldCheckAfterPaid
           ? _value.shouldCheckAfterPaid
           : shouldCheckAfterPaid // ignore: cast_nullable_to_non_nullable
               as bool,
+      expireDateTime: freezed == expireDateTime
+          ? _value.expireDateTime
+          : expireDateTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      warningDate: freezed == warningDate
+          ? _value.warningDate
+          : warningDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       strictMaxLaunch: null == strictMaxLaunch
           ? _value.strictMaxLaunch
           : strictMaxLaunch // ignore: cast_nullable_to_non_nullable
               as bool,
-      minTargetBuildNumber: freezed == minTargetBuildNumber
-          ? _value.minTargetBuildNumber
-          : minTargetBuildNumber // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+      maxLaunch: freezed == maxLaunch
+          ? _value.maxLaunch
+          : maxLaunch // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -383,58 +366,43 @@ class __$$AppPaymentModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$AppPaymentModelImpl implements _AppPaymentModel {
   const _$AppPaymentModelImpl(
-      {@JsonKey(name: 'expiry_date') this.expiryDate,
-      @JsonKey(name: 'status') this.status = PaymentStatusEnum.UNPAID,
-      @JsonKey(name: 'message') this.message,
-      @JsonKey(name: 'max_launch') this.maxLaunch,
-      @JsonKey(name: 'developer_details')
-      final Map<String, dynamic>? developerDetails,
+      {@JsonKey(name: 'status') this.status = PaymentStatusEnum.UNPAID,
+      @JsonKey(name: 'target_version') this.targetVersion,
       @JsonKey(name: 'should_check_after_paid')
       this.shouldCheckAfterPaid = false,
-      @JsonKey(name: 'strict_max_launch') this.strictMaxLaunch = true,
-      @JsonKey(name: 'min_target_build_number')
-      this.minTargetBuildNumber = '0'})
-      : _developerDetails = developerDetails;
+      @JsonKey(name: 'expire_date') this.expireDateTime,
+      @JsonKey(name: 'warning_date') this.warningDate,
+      @JsonKey(name: 'strict_max_launch') this.strictMaxLaunch = false,
+      @JsonKey(name: 'max_launch') this.maxLaunch});
 
   factory _$AppPaymentModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppPaymentModelImplFromJson(json);
 
   @override
-  @JsonKey(name: 'expiry_date')
-  final DateTime? expiryDate;
-  @override
   @JsonKey(name: 'status')
   final PaymentStatusEnum status;
   @override
-  @JsonKey(name: 'message')
-  final String? message;
-  @override
-  @JsonKey(name: 'max_launch')
-  final int? maxLaunch;
-  final Map<String, dynamic>? _developerDetails;
-  @override
-  @JsonKey(name: 'developer_details')
-  Map<String, dynamic>? get developerDetails {
-    final value = _developerDetails;
-    if (value == null) return null;
-    if (_developerDetails is EqualUnmodifiableMapView) return _developerDetails;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
-  }
-
+  @JsonKey(name: 'target_version')
+  final double? targetVersion;
   @override
   @JsonKey(name: 'should_check_after_paid')
   final bool shouldCheckAfterPaid;
   @override
+  @JsonKey(name: 'expire_date')
+  final DateTime? expireDateTime;
+  @override
+  @JsonKey(name: 'warning_date')
+  final DateTime? warningDate;
+  @override
   @JsonKey(name: 'strict_max_launch')
   final bool strictMaxLaunch;
   @override
-  @JsonKey(name: 'min_target_build_number')
-  final dynamic minTargetBuildNumber;
+  @JsonKey(name: 'max_launch')
+  final int? maxLaunch;
 
   @override
   String toString() {
-    return 'BackdoorPaymentModel(expiryDate: $expiryDate, status: $status, message: $message, maxLaunch: $maxLaunch, developerDetails: $developerDetails, shouldCheckAfterPaid: $shouldCheckAfterPaid, strictMaxLaunch: $strictMaxLaunch, minTargetBuildNumber: $minTargetBuildNumber)';
+    return 'BackdoorPaymentModel(status: $status, targetVersion: $targetVersion, shouldCheckAfterPaid: $shouldCheckAfterPaid, expireDateTime: $expireDateTime, warningDate: $warningDate, strictMaxLaunch: $strictMaxLaunch, maxLaunch: $maxLaunch)';
   }
 
   @override
@@ -442,34 +410,32 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$AppPaymentModelImpl &&
-            (identical(other.expiryDate, expiryDate) ||
-                other.expiryDate == expiryDate) &&
             (identical(other.status, status) || other.status == status) &&
-            (identical(other.message, message) || other.message == message) &&
-            (identical(other.maxLaunch, maxLaunch) ||
-                other.maxLaunch == maxLaunch) &&
-            const DeepCollectionEquality()
-                .equals(other._developerDetails, _developerDetails) &&
+            (identical(other.targetVersion, targetVersion) ||
+                other.targetVersion == targetVersion) &&
             (identical(other.shouldCheckAfterPaid, shouldCheckAfterPaid) ||
                 other.shouldCheckAfterPaid == shouldCheckAfterPaid) &&
+            (identical(other.expireDateTime, expireDateTime) ||
+                other.expireDateTime == expireDateTime) &&
+            (identical(other.warningDate, warningDate) ||
+                other.warningDate == warningDate) &&
             (identical(other.strictMaxLaunch, strictMaxLaunch) ||
                 other.strictMaxLaunch == strictMaxLaunch) &&
-            const DeepCollectionEquality()
-                .equals(other.minTargetBuildNumber, minTargetBuildNumber));
+            (identical(other.maxLaunch, maxLaunch) ||
+                other.maxLaunch == maxLaunch));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      expiryDate,
       status,
-      message,
-      maxLaunch,
-      const DeepCollectionEquality().hash(_developerDetails),
+      targetVersion,
       shouldCheckAfterPaid,
+      expireDateTime,
+      warningDate,
       strictMaxLaunch,
-      const DeepCollectionEquality().hash(minTargetBuildNumber));
+      maxLaunch);
 
   /// Create a copy of BackdoorPaymentModel
   /// with the given fields replaced by the non-null parameter values.
@@ -490,44 +456,39 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
 
 abstract class _AppPaymentModel implements BackdoorPaymentModel {
   const factory _AppPaymentModel(
-      {@JsonKey(name: 'expiry_date') final DateTime? expiryDate,
-      @JsonKey(name: 'status') final PaymentStatusEnum status,
-      @JsonKey(name: 'message') final String? message,
-      @JsonKey(name: 'max_launch') final int? maxLaunch,
-      @JsonKey(name: 'developer_details')
-      final Map<String, dynamic>? developerDetails,
+      {@JsonKey(name: 'status') final PaymentStatusEnum status,
+      @JsonKey(name: 'target_version') final double? targetVersion,
       @JsonKey(name: 'should_check_after_paid') final bool shouldCheckAfterPaid,
+      @JsonKey(name: 'expire_date') final DateTime? expireDateTime,
+      @JsonKey(name: 'warning_date') final DateTime? warningDate,
       @JsonKey(name: 'strict_max_launch') final bool strictMaxLaunch,
-      @JsonKey(name: 'min_target_build_number')
-      final dynamic minTargetBuildNumber}) = _$AppPaymentModelImpl;
+      @JsonKey(name: 'max_launch')
+      final int? maxLaunch}) = _$AppPaymentModelImpl;
 
   factory _AppPaymentModel.fromJson(Map<String, dynamic> json) =
       _$AppPaymentModelImpl.fromJson;
 
   @override
-  @JsonKey(name: 'expiry_date')
-  DateTime? get expiryDate;
-  @override
   @JsonKey(name: 'status')
   PaymentStatusEnum get status;
   @override
-  @JsonKey(name: 'message')
-  String? get message;
-  @override
-  @JsonKey(name: 'max_launch')
-  int? get maxLaunch;
-  @override
-  @JsonKey(name: 'developer_details')
-  Map<String, dynamic>? get developerDetails;
+  @JsonKey(name: 'target_version')
+  double? get targetVersion;
   @override
   @JsonKey(name: 'should_check_after_paid')
   bool get shouldCheckAfterPaid;
   @override
+  @JsonKey(name: 'expire_date')
+  DateTime? get expireDateTime;
+  @override
+  @JsonKey(name: 'warning_date')
+  DateTime? get warningDate;
+  @override
   @JsonKey(name: 'strict_max_launch')
   bool get strictMaxLaunch;
   @override
-  @JsonKey(name: 'min_target_build_number')
-  dynamic get minTargetBuildNumber;
+  @JsonKey(name: 'max_launch')
+  int? get maxLaunch;
 
   /// Create a copy of BackdoorPaymentModel
   /// with the given fields replaced by the non-null parameter values.
