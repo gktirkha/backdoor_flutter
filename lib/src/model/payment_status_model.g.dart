@@ -24,8 +24,7 @@ Map<String, dynamic> _$$PaymentStatusModelImplToJson(
 _$AppPaymentModelImpl _$$AppPaymentModelImplFromJson(
         Map<String, dynamic> json) =>
     _$AppPaymentModelImpl(
-      status: $enumDecodeNullable(_$PaymentStatusEnumEnumMap, json['status']) ??
-          PaymentStatusEnum.UNPAID,
+      status: $enumDecodeNullable(_$PaymentStatusEnumMap, json['status']),
       targetVersion: (json['target_version'] as num?)?.toDouble(),
       shouldCheckAfterPaid: json['should_check_after_paid'] as bool? ?? false,
       expireDateTime: json['expire_date'] == null
@@ -41,7 +40,7 @@ _$AppPaymentModelImpl _$$AppPaymentModelImplFromJson(
 Map<String, dynamic> _$$AppPaymentModelImplToJson(
         _$AppPaymentModelImpl instance) =>
     <String, dynamic>{
-      'status': _$PaymentStatusEnumEnumMap[instance.status]!,
+      'status': _$PaymentStatusEnumMap[instance.status],
       'target_version': instance.targetVersion,
       'should_check_after_paid': instance.shouldCheckAfterPaid,
       'expire_date': instance.expireDateTime?.toIso8601String(),
@@ -50,9 +49,9 @@ Map<String, dynamic> _$$AppPaymentModelImplToJson(
       'max_launch': instance.maxLaunch,
     };
 
-const _$PaymentStatusEnumEnumMap = {
-  PaymentStatusEnum.PAID: 'PAID',
-  PaymentStatusEnum.UNPAID: 'UNPAID',
-  PaymentStatusEnum.ALLOW_LIMITED_LAUNCHES: 'ALLOW_LIMITED_LAUNCHES',
-  PaymentStatusEnum.ON_TRIAL: 'ON_TRIAL',
+const _$PaymentStatusEnumMap = {
+  PaymentStatus.PAID: 'PAID',
+  PaymentStatus.UNPAID: 'UNPAID',
+  PaymentStatus.ALLOW_LIMITED_LAUNCHES: 'ALLOW_LIMITED_LAUNCHES',
+  PaymentStatus.ON_TRIAL: 'ON_TRIAL',
 };

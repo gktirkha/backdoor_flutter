@@ -193,7 +193,7 @@ BackdoorPaymentModel _$BackdoorPaymentModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$BackdoorPaymentModel {
   @JsonKey(name: 'status')
-  PaymentStatusEnum get status => throw _privateConstructorUsedError;
+  PaymentStatus? get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'target_version')
   double? get targetVersion => throw _privateConstructorUsedError;
   @JsonKey(name: 'should_check_after_paid')
@@ -224,7 +224,7 @@ abstract class $BackdoorPaymentModelCopyWith<$Res> {
       _$BackdoorPaymentModelCopyWithImpl<$Res, BackdoorPaymentModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'status') PaymentStatusEnum status,
+      {@JsonKey(name: 'status') PaymentStatus? status,
       @JsonKey(name: 'target_version') double? targetVersion,
       @JsonKey(name: 'should_check_after_paid') bool shouldCheckAfterPaid,
       @JsonKey(name: 'expire_date') DateTime? expireDateTime,
@@ -249,7 +249,7 @@ class _$BackdoorPaymentModelCopyWithImpl<$Res,
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? status = null,
+    Object? status = freezed,
     Object? targetVersion = freezed,
     Object? shouldCheckAfterPaid = null,
     Object? expireDateTime = freezed,
@@ -258,10 +258,10 @@ class _$BackdoorPaymentModelCopyWithImpl<$Res,
     Object? maxLaunch = freezed,
   }) {
     return _then(_value.copyWith(
-      status: null == status
+      status: freezed == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
-              as PaymentStatusEnum,
+              as PaymentStatus?,
       targetVersion: freezed == targetVersion
           ? _value.targetVersion
           : targetVersion // ignore: cast_nullable_to_non_nullable
@@ -299,7 +299,7 @@ abstract class _$$AppPaymentModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'status') PaymentStatusEnum status,
+      {@JsonKey(name: 'status') PaymentStatus? status,
       @JsonKey(name: 'target_version') double? targetVersion,
       @JsonKey(name: 'should_check_after_paid') bool shouldCheckAfterPaid,
       @JsonKey(name: 'expire_date') DateTime? expireDateTime,
@@ -321,7 +321,7 @@ class __$$AppPaymentModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? status = null,
+    Object? status = freezed,
     Object? targetVersion = freezed,
     Object? shouldCheckAfterPaid = null,
     Object? expireDateTime = freezed,
@@ -330,10 +330,10 @@ class __$$AppPaymentModelImplCopyWithImpl<$Res>
     Object? maxLaunch = freezed,
   }) {
     return _then(_$AppPaymentModelImpl(
-      status: null == status
+      status: freezed == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
-              as PaymentStatusEnum,
+              as PaymentStatus?,
       targetVersion: freezed == targetVersion
           ? _value.targetVersion
           : targetVersion // ignore: cast_nullable_to_non_nullable
@@ -366,7 +366,7 @@ class __$$AppPaymentModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$AppPaymentModelImpl implements _AppPaymentModel {
   const _$AppPaymentModelImpl(
-      {@JsonKey(name: 'status') this.status = PaymentStatusEnum.UNPAID,
+      {@JsonKey(name: 'status') this.status,
       @JsonKey(name: 'target_version') this.targetVersion,
       @JsonKey(name: 'should_check_after_paid')
       this.shouldCheckAfterPaid = false,
@@ -380,7 +380,7 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
 
   @override
   @JsonKey(name: 'status')
-  final PaymentStatusEnum status;
+  final PaymentStatus? status;
   @override
   @JsonKey(name: 'target_version')
   final double? targetVersion;
@@ -456,7 +456,7 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
 
 abstract class _AppPaymentModel implements BackdoorPaymentModel {
   const factory _AppPaymentModel(
-      {@JsonKey(name: 'status') final PaymentStatusEnum status,
+      {@JsonKey(name: 'status') final PaymentStatus? status,
       @JsonKey(name: 'target_version') final double? targetVersion,
       @JsonKey(name: 'should_check_after_paid') final bool shouldCheckAfterPaid,
       @JsonKey(name: 'expire_date') final DateTime? expireDateTime,
@@ -470,7 +470,7 @@ abstract class _AppPaymentModel implements BackdoorPaymentModel {
 
   @override
   @JsonKey(name: 'status')
-  PaymentStatusEnum get status;
+  PaymentStatus? get status;
   @override
   @JsonKey(name: 'target_version')
   double? get targetVersion;
