@@ -12,3 +12,5 @@ Fix: Force Check During Trial
 Fix: Force Check During Trial
 ## 0.1.6
 Attempt to Get Max Pub Score
+## 1.0.0
+Readme Changes

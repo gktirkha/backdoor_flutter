@@ -1,5 +1,5 @@
 name: backdoor_flutter
-version: 0.1.6
+version: 1.0.0
 homepage: https://github.com/gktirkha/backdoor_flutter/
 repository: https://github.com/gktirkha/backdoor_flutter/
 description: BackdoorFlutter simplifies payment management in Flutter apps, providing status checks, trial handling, and customizable callbacks for an improved user experience.

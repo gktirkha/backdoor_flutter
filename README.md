@@ -40,7 +40,7 @@ A hosted json file in following [format](https://raw.githubusercontent.com/gktir
 
     ``` yaml
     dependencies:
-        backdoor_flutter: ^0.1.3
+        backdoor_flutter: ^latest_version
     ```
 1. in code 
     ``` dart
