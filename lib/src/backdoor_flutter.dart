@@ -27,6 +27,8 @@ abstract class BackdoorFlutter {
 
   static const String _apiLogTag = 'BACKDOOR_FLUTTER_API_LOG';
 
+  static late bool _showApiLogs;
+
   /// Initializes the application configuration.
   ///
   /// This method sets up the necessary parameters for the application using either
@@ -34,13 +36,13 @@ abstract class BackdoorFlutter {
   /// directly in this method or through their respective environment variables.
   ///
   /// Parameters:
-  /// - [jsonUrl]: The URL where the JSON configuration file is hosted.
+  /// - [jsonUrl] : The URL where the JSON configuration file is hosted.
   ///   Corresponding environment variable: `BACKDOOR_JSON_URL`.
-  /// - [appName]: The name of the app to be looked up in the JSON file.
+  /// - [appName] : The name of the app to be looked up in the JSON file.
   ///   Corresponding environment variable: `BACKDOOR_APP_NAME`.
-  /// - [version]: The version of the backdoor rules, which must be greater than 0.
+  /// - [version] : The version of the backdoor rules, which must be greater than 0.
   ///   Corresponding environment variable: `BACKDOOR_VERSION`.
-  /// - [autoDecrementLaunchCount]: If set to `true`, the launch count will be automatically managed.
+  /// - [autoDecrementLaunchCount] : If set to `true`, the launch count will be automatically managed.
   ///   If `false`, you must manually decrement the launch count using the [decrementCount] method.
   ///   Corresponding environment variable: `BACKDOOR_AUTO_DECREMENT`.
   ///
@@ -49,12 +51,15 @@ abstract class BackdoorFlutter {
   ///
   /// Returns:
   /// - A [Future] that completes when the configuration has been successfully initialized.
+  /// [showApiLogs] to show api logs, default true
   static Future<void> init({
     String? jsonUrl,
     String? appName,
     double? version,
+    bool showApiLogs = true,
     bool autoDecrementLaunchCount = true,
   }) async {
+    _showApiLogs = showApiLogs;
     _jsonUrl = InitService.initializeUrl(jsonUrl);
     _appName = InitService.initializeAppName(appName);
     _autoDecrementLaunchCount = InitService.initializeAutoDecrement(autoDecrementLaunchCount);
@@ -112,7 +117,6 @@ abstract class BackdoorFlutter {
     required Map<String, dynamic> httpQueryParameters,
     required Map<String, dynamic> httpRequestBody,
     required String httpMethod,
-    required bool showApiLogs,
   }) async {
     try {
       final Dio dioClient = Dio(
@@ -122,7 +126,7 @@ abstract class BackdoorFlutter {
           receiveTimeout: const Duration(minutes: 10),
         ),
       );
-      if (showApiLogs) {
+      if (_showApiLogs) {
         dioClient.interceptors.add(
           LogInterceptor(
             logPrint: (object) => _logger(object, name: _apiLogTag),
@@ -176,23 +180,22 @@ abstract class BackdoorFlutter {
   /// The function can be customized with HTTP headers, query parameters, request body, and method type.
   ///
   /// Parameters:
-  /// - [httpHeaders]: Optional map of HTTP headers to send with the request.
-  /// - [httpQueryParameters]: Optional map of query parameters to include in the request.
-  /// - [httpRequestBody]: Optional map for the body of the request (for POST or PUT requests).
-  /// - [httpMethod]: The HTTP method to use for the request. Defaults to 'GET'.
-  /// - [showApiLogs]: Flag indicating whether to display API logs. Defaults to true.
-  /// - [onException]: Callback invoked when an exception occurs during the operation.
-  /// - [onUnhandled]: Callback invoked for unhandled cases or unexpected results.
-  /// - [onAppNotFound]: Optional callback for when the application is not found.
-  /// - [onPaid]: Callback invoked when the application is in a paid state.
-  /// - [onUnPaid]: Callback invoked when the application is in an unpaid state.
-  /// - [onLimitedLaunch]: Callback for handling limited launch scenarios.
-  /// - [onLimitedLaunchExceeded]: Callback for when limited launch is exceeded.
-  /// - [onTrial]: Callback for when the application is in a trial period.
-  /// - [onTrialWarning]: Callback for trial warning scenarios.
-  /// - [onTrialEnded]: Callback for when the trial period has ended.
-  /// - [onTargetVersionMisMatch]: Callback for when the target version does not match.
-  /// - [useCachedConfigOnNetworkException]: Flag indicating whether to use cached configuration in case of a network exception. Defaults to true.
+  /// - [httpHeaders] : Optional map of HTTP headers to send with the request.
+  /// - [httpQueryParameters] : Optional map of query parameters to include in the request.
+  /// - [httpRequestBody] : Optional map for the body of the request (for POST or PUT requests).
+  /// - [httpMethod] : The HTTP method to use for the request. Defaults to 'GET'.
+  /// - [onException] : Callback invoked when an exception occurs during the operation.
+  /// - [onUnhandled] : Callback invoked for unhandled cases or unexpected results.
+  /// - [onAppNotFound] : Optional callback for when the application is not found.
+  /// - [onPaid] : Callback invoked when the application is in a paid state.
+  /// - [onUnPaid] : Callback invoked when the application is in an unpaid state.
+  /// - [onLimitedLaunch] : Callback for handling limited launch scenarios.
+  /// - [onLimitedLaunchExceeded] : Callback for when limited launch is exceeded.
+  /// - [onTrial] : Callback for when the application is in a trial period.
+  /// - [onTrialWarning] : Callback for trial warning scenarios.
+  /// - [onTrialEnded] : Callback for when the trial period has ended.
+  /// - [onTargetVersionMisMatch] : Callback for when the target version does not match.
+  /// - [useCachedConfigOnNetworkException] : Flag indicating whether to use cached configuration in case of a network exception. Defaults to true.
   ///
   /// Throws:
   /// - [BackdoorFlutterException] if there is an issue with the target version or configuration.
@@ -204,7 +207,6 @@ abstract class BackdoorFlutter {
     Map<String, dynamic>? httpQueryParameters,
     Map<String, dynamic>? httpRequestBody,
     String httpMethod = 'GET',
-    bool showApiLogs = true,
     required OnException onException,
     required OnUnhandled onUnhandled,
     OnAppNotFound? onAppNotFound,
@@ -227,7 +229,6 @@ abstract class BackdoorFlutter {
               httpQueryParameters: httpQueryParameters ?? {},
               httpRequestBody: httpRequestBody ?? {},
               httpMethod: httpMethod,
-              showApiLogs: showApiLogs,
             )
           : storedModel;
 
