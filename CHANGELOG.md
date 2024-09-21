@@ -8,3 +8,5 @@ Doc Fixes
 Doc Fixes
 ## 0.1.4
 Fix: Force Check During Trial
+## 0.1.5
+Attempt to Get Max Pub Score
