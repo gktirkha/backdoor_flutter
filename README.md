@@ -27,21 +27,20 @@ A hosted json file in following [format](https://raw.githubusercontent.com/gktir
     - **additional_fields** you can literally send any thing
 
 
-# Usage
-
-> Please Refer To dart [Dart Doc Version](https://gktirkha.github.io/flutter_packages_doc/backdoor_flutter)
 
 # Flow Chart For Whole Mechanism 
 1. [image file](https://github.com/gktirkha/backdoor_flutter/blob/master/assets/flow.png) 
 2. [draw.io](https://github.com/gktirkha/backdoor_flutter/blob/master/assets/flow.drawio)
 
-## Instructions
+# Usage
+
+> Please Refer To dart [Dart Doc Version](https://gktirkha.github.io/flutter_packages_doc/backdoor_flutter)
 
 1. add dependency
 
-    ```
-    backdoor_flutter:
-        git: https://github.com/gktirkha/backdoor_flutter
+    ``` yaml
+    dependencies:
+        backdoor_flutter: ^0.1.3
     ```
 1. in code 
     ``` dart
