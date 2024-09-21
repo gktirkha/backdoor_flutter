@@ -53,7 +53,9 @@ class BackdoorPaymentModel with _$BackdoorPaymentModel {
   const factory BackdoorPaymentModel({
     @JsonKey(name: 'status') PaymentStatus? status,
     @JsonKey(name: 'target_version') double? targetVersion,
-    @Default(false) @JsonKey(name: 'should_check_after_paid') bool shouldCheckAfterPaid,
+    @Default(false)
+    @JsonKey(name: 'should_check_after_paid')
+    bool shouldCheckAfterPaid,
     @Default(false) @JsonKey(name: 'check_during_trial') bool checkDuringTrial,
     @JsonKey(name: 'expire_date') DateTime? expireDateTime,
     @JsonKey(name: 'warning_date') DateTime? warningDate,
@@ -66,5 +68,6 @@ class BackdoorPaymentModel with _$BackdoorPaymentModel {
   /// Creates a [BackdoorPaymentModel] from a JSON map.
   ///
   /// [json] - The JSON map containing the payment model data.
-  factory BackdoorPaymentModel.fromJson(Map<String, dynamic> json) => _$BackdoorPaymentModelFromJson(json);
+  factory BackdoorPaymentModel.fromJson(Map<String, dynamic> json) =>
+      _$BackdoorPaymentModelFromJson(json);
 }

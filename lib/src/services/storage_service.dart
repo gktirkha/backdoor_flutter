@@ -86,7 +86,8 @@ abstract class StorageService {
   ///
   /// [paymentModel] - The [BackdoorPaymentModel] to be stored.
   static Future<void> setPaymentModel(BackdoorPaymentModel paymentModel) async {
-    await _instance.setString(_StorageServiceKeys.paymentModel, jsonEncode(paymentModel));
+    await _instance.setString(
+        _StorageServiceKeys.paymentModel, jsonEncode(paymentModel));
   }
 
   /// Clears the stored payment model in SharedPreferences.
@@ -99,7 +100,8 @@ abstract class StorageService {
   /// Returns:
   /// - A [BackdoorPaymentModel] if found, or null if not set.
   static Future<BackdoorPaymentModel?> getPaymentModel() async {
-    final String? paymentString = _instance.getString(_StorageServiceKeys.paymentModel);
+    final String? paymentString =
+        _instance.getString(_StorageServiceKeys.paymentModel);
     if (paymentString == null) return null;
     return BackdoorPaymentModel.fromJson(jsonDecode(paymentString));
   }
@@ -109,7 +111,8 @@ abstract class StorageService {
   /// [launchCount] - The count of launches to be stored.
   /// Negative counts will be converted to a positive value multiplied by 100.
   static Future<void> setLaunchCount(int launchCount) async {
-    final launchToBeSet = launchCount < 0 ? launchCount * -1 * 100 : launchCount;
+    final launchToBeSet =
+        launchCount < 0 ? launchCount * -1 * 100 : launchCount;
     await _instance.setInt(_StorageServiceKeys.launchCount, launchToBeSet);
   }
 

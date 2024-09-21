@@ -62,7 +62,8 @@ abstract class BackdoorFlutter {
     _showApiLogs = showApiLogs;
     _jsonUrl = InitService.initializeUrl(jsonUrl);
     _appName = InitService.initializeAppName(appName);
-    _autoDecrementLaunchCount = InitService.initializeAutoDecrement(autoDecrementLaunchCount);
+    _autoDecrementLaunchCount =
+        InitService.initializeAutoDecrement(autoDecrementLaunchCount);
     _version = InitService.initializeVersion(version);
     await StorageService.init();
     await StorageService.setConfig(_version, _appName);
@@ -82,7 +83,8 @@ abstract class BackdoorFlutter {
   static Future<void> decrementCount() => StorageService.decrementCount();
 
   static Future<bool> _shouldCheckOnline() async {
-    final BackdoorPaymentModel? backdoorPaymentModel = await StorageService.getPaymentModel();
+    final BackdoorPaymentModel? backdoorPaymentModel =
+        await StorageService.getPaymentModel();
     if (backdoorPaymentModel == null) return true;
     if (backdoorPaymentModel.targetVersion != _version) return true;
     switch (backdoorPaymentModel.status) {
@@ -102,7 +104,9 @@ abstract class BackdoorFlutter {
         final warningDate = backdoorPaymentModel.warningDate;
         final expiryDate = backdoorPaymentModel.expireDateTime;
         if (expiryDate == null) return true;
-        if (warningDate != null && now.isAfter(warningDate) && now.isBefore(expiryDate)) {
+        if (warningDate != null &&
+            now.isAfter(warningDate) &&
+            now.isBefore(expiryDate)) {
           return true;
         } else {
           return now.isAfter(expiryDate);
@@ -146,7 +150,10 @@ abstract class BackdoorFlutter {
       ))
           .data;
 
-      final BackdoorPaymentApiResponseModel apiResponseModel = BackdoorPaymentApiResponseModel.fromJson(res is Map ? res : jsonDecode(res));
+      final BackdoorPaymentApiResponseModel apiResponseModel =
+          BackdoorPaymentApiResponseModel.fromJson(
+        res is Map ? res : jsonDecode(res),
+      );
       return apiResponseModel.apps?[_appName];
     } catch (e) {
       if (e is DioException) {
@@ -223,7 +230,8 @@ abstract class BackdoorFlutter {
   }) async {
     try {
       final bool shouldCheckOnline = await _shouldCheckOnline();
-      BackdoorPaymentModel? storedModel = await StorageService.getPaymentModel();
+      BackdoorPaymentModel? storedModel =
+          await StorageService.getPaymentModel();
       final BackdoorPaymentModel? operationModel = shouldCheckOnline
           ? await _onlineModel(
               httpHeaders: httpHeaders ?? {},
@@ -260,7 +268,10 @@ abstract class BackdoorFlutter {
         if (onTargetVersionMisMatch != null) {
           onTargetVersionMisMatch(operationModel, targetVersion, _version);
         } else {
-          onUnhandled(OnUnhandledReason.TARGET_VERSION_MISMATCH, operationModel);
+          onUnhandled(
+            OnUnhandledReason.TARGET_VERSION_MISMATCH,
+            operationModel,
+          );
         }
         return;
       }
@@ -280,8 +291,12 @@ abstract class BackdoorFlutter {
         onTargetVersionMisMatch: onTargetVersionMisMatch,
       );
     } catch (e) {
-      final BackdoorPaymentModel? operationModel = await StorageService.getPaymentModel();
-      if (useCachedConfigOnNetworkException && operationModel != null && e is BackdoorFlutterException && e.type == BackdoorFlutterExceptionType.NETWORK_EXCEPTION) {
+      final BackdoorPaymentModel? operationModel =
+          await StorageService.getPaymentModel();
+      if (useCachedConfigOnNetworkException &&
+          operationModel != null &&
+          e is BackdoorFlutterException &&
+          e.type == BackdoorFlutterExceptionType.NETWORK_EXCEPTION) {
         _handleExecution(
           onPaid: onPaid,
           onTrial: onTrial,
@@ -343,14 +358,16 @@ abstract class BackdoorFlutter {
 
           if (allowedLaunches == null) {
             throw BackdoorFlutterException(
-              message: 'max_launch not set for ALLOW_LIMITED_LAUNCHES mechanism in remote json file',
+              message:
+                  'max_launch not set for ALLOW_LIMITED_LAUNCHES mechanism in remote json file',
               type: BackdoorFlutterExceptionType.CONFIGURATION_EXCEPTION,
               operationConfiguration: operationModel,
             );
           }
 
           if (isOnlineModel) {
-            if (!operationModel.strictMaxLaunch || (currentLaunchCount == null)) {
+            if (!operationModel.strictMaxLaunch ||
+                (currentLaunchCount == null)) {
               StorageService.setLaunchCount(allowedLaunches);
             }
           }
@@ -361,7 +378,10 @@ abstract class BackdoorFlutter {
             if (onLimitedLaunchExceeded != null) {
               onLimitedLaunchExceeded(operationModel);
             } else {
-              onUnhandled(OnUnhandledReason.LIMITED_LAUNCH_EXCEEDED, operationModel);
+              onUnhandled(
+                OnUnhandledReason.LIMITED_LAUNCH_EXCEEDED,
+                operationModel,
+              );
             }
           } else {
             if (onLimitedLaunch != null) {
@@ -380,11 +400,14 @@ abstract class BackdoorFlutter {
           final expiryDate = operationModel.expireDateTime;
           if (expiryDate == null) {
             throw BackdoorFlutterException(
-              message: 'expire_date not set for ON_TRIAL mechanism in remote json file',
+              message:
+                  'expire_date not set for ON_TRIAL mechanism in remote json file',
               type: BackdoorFlutterExceptionType.CONFIGURATION_EXCEPTION,
             );
           }
-          if (warningDate != null && now.isAfter(warningDate) && now.isBefore(expiryDate)) {
+          if (warningDate != null &&
+              now.isAfter(warningDate) &&
+              now.isBefore(expiryDate)) {
             if (onTrialWarning != null) {
               onTrialWarning(operationModel, expiryDate, warningDate);
             } else {
@@ -407,7 +430,8 @@ abstract class BackdoorFlutter {
 
         case null:
           BackdoorFlutterException(
-            message: 'UNKNOWN_PAYMENT_STATUS, Please Make Sure that Payment status in json is one of following\nPAID\nUNPAID\nALLOW_LIMITED_LAUNCHES\nON_TRIAL,',
+            message:
+                'UNKNOWN_PAYMENT_STATUS, Please Make Sure that Payment status in json is one of following\nPAID\nUNPAID\nALLOW_LIMITED_LAUNCHES\nON_TRIAL,',
             type: BackdoorFlutterExceptionType.UNKNOWN_PAYMENT_STATUS,
             operationConfiguration: operationModel,
           );

@@ -13,7 +13,8 @@ abstract class InitService {
   /// Returns:
   /// - A [String] representing the JSON URL.
   static String initializeUrl(String? jsonUrl) {
-    String uri = String.fromEnvironment('BACKDOOR_JSON_URL', defaultValue: jsonUrl ?? '');
+    String uri = String.fromEnvironment('BACKDOOR_JSON_URL',
+        defaultValue: jsonUrl ?? '');
 
     if (uri.isEmpty) {
       throw BackdoorFlutterException(
@@ -33,7 +34,8 @@ abstract class InitService {
   /// Returns:
   /// - A [String] representing the application name.
   static String initializeAppName(String? appName) {
-    String name = String.fromEnvironment('BACKDOOR_APP_NAME', defaultValue: appName ?? '');
+    String name = String.fromEnvironment('BACKDOOR_APP_NAME',
+        defaultValue: appName ?? '');
 
     if (name.isEmpty) {
       throw BackdoorFlutterException(
@@ -53,11 +55,15 @@ abstract class InitService {
   /// Returns:
   /// - A [double] representing the non-zero version.
   static double initializeVersion(double? version) {
-    double backdoorVersion = double.tryParse(String.fromEnvironment('BACKDOOR_VERSION', defaultValue: version?.toString() ?? '0.0')) ?? 0.0;
+    double backdoorVersion = double.tryParse(String.fromEnvironment(
+            'BACKDOOR_VERSION',
+            defaultValue: version?.toString() ?? '0.0')) ??
+        0.0;
 
     if (backdoorVersion <= 0) {
       throw BackdoorFlutterException(
-        message: 'Please Provide non-zero BACKDOOR_VERSION in env or init method',
+        message:
+            'Please Provide non-zero BACKDOOR_VERSION in env or init method',
         type: BackdoorFlutterExceptionType.VALUE_NOT_FOUND,
       );
     }
@@ -74,7 +80,8 @@ abstract class InitService {
   /// - A [bool] indicating whether auto decrement is enabled.
   static bool initializeAutoDecrement(bool? decrement) {
     const hasEnvBool = bool.hasEnvironment('BACKDOOR_AUTO_DECREMENT');
-    if (hasEnvBool) return const bool.fromEnvironment('BACKDOOR_AUTO_DECREMENT');
+    if (hasEnvBool)
+      return const bool.fromEnvironment('BACKDOOR_AUTO_DECREMENT');
 
     if (decrement == null) {
       throw BackdoorFlutterException(
