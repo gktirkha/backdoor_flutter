@@ -63,7 +63,9 @@ abstract class StorageService {
     final storedVersion = await _getVersion();
     final storedAppName = await _getAppName();
 
-    if ((version == storedVersion) && (appName == storedAppName)) return;
+    if ((version == storedVersion) && (appName == storedAppName)) {
+      return;
+    }
 
     if (storedAppName != appName) {
       await _clear();
@@ -87,7 +89,9 @@ abstract class StorageService {
   /// [paymentModel] - The [BackdoorPaymentModel] to be stored.
   static Future<void> setPaymentModel(BackdoorPaymentModel paymentModel) async {
     await _instance.setString(
-        _StorageServiceKeys.paymentModel, jsonEncode(paymentModel));
+      _StorageServiceKeys.paymentModel,
+      jsonEncode(paymentModel),
+    );
   }
 
   /// Clears the stored payment model in SharedPreferences.
@@ -102,7 +106,9 @@ abstract class StorageService {
   static Future<BackdoorPaymentModel?> getPaymentModel() async {
     final String? paymentString =
         _instance.getString(_StorageServiceKeys.paymentModel);
-    if (paymentString == null) return null;
+    if (paymentString == null) {
+      return null;
+    }
     return BackdoorPaymentModel.fromJson(jsonDecode(paymentString));
   }
 
@@ -134,8 +140,12 @@ abstract class StorageService {
   /// This method will not decrement if the current count is null or less than or equal to zero.
   static Future<void> decrementCount() async {
     final currentCount = await getLaunchCount();
-    if (currentCount == null) return;
-    if (currentCount <= 0) return;
+    if (currentCount == null) {
+      return;
+    }
+    if (currentCount <= 0) {
+      return;
+    }
     await _instance.setInt(_StorageServiceKeys.launchCount, currentCount - 1);
   }
 }

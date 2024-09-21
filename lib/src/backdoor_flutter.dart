@@ -85,8 +85,12 @@ abstract class BackdoorFlutter {
   static Future<bool> _shouldCheckOnline() async {
     final BackdoorPaymentModel? backdoorPaymentModel =
         await StorageService.getPaymentModel();
-    if (backdoorPaymentModel == null) return true;
-    if (backdoorPaymentModel.targetVersion != _version) return true;
+    if (backdoorPaymentModel == null) {
+      return true;
+    }
+    if (backdoorPaymentModel.targetVersion != _version) {
+      return true;
+    }
     switch (backdoorPaymentModel.status) {
       case PaymentStatus.PAID:
         return backdoorPaymentModel.shouldCheckAfterPaid;
@@ -99,11 +103,15 @@ abstract class BackdoorFlutter {
         return (currentCount == null || currentCount <= 0);
 
       case PaymentStatus.ON_TRIAL:
-        if (backdoorPaymentModel.checkDuringTrial == true) return true;
+        if (backdoorPaymentModel.checkDuringTrial == true) {
+          return true;
+        }
         final now = DateTime.now();
         final warningDate = backdoorPaymentModel.warningDate;
         final expiryDate = backdoorPaymentModel.expireDateTime;
-        if (expiryDate == null) return true;
+        if (expiryDate == null) {
+          return true;
+        }
         if (warningDate != null &&
             now.isAfter(warningDate) &&
             now.isBefore(expiryDate)) {
