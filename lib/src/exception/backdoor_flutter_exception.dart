@@ -1,3 +1,4 @@
+// ignore_for_file: constant_identifier_names
 import '../model/payment_status_model.dart';
 
 /// Custom exception class for handling errors in the Backdoor application.

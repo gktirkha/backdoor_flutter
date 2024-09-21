@@ -1,4 +1,8 @@
+// ignore_for_file: constant_identifier_names
+library backdoor_flutter;
+
 /// Enumeration representing various reasons for unhandled cases. when OnUnhandled is invoked
+
 enum OnUnhandledReason {
   /// Indicates that the application is in a paid state.
   PAID,
