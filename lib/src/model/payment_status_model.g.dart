@@ -36,6 +36,8 @@ _$AppPaymentModelImpl _$$AppPaymentModelImplFromJson(
           : DateTime.parse(json['warning_date'] as String),
       strictMaxLaunch: json['strict_max_launch'] as bool? ?? true,
       maxLaunch: (json['max_launch'] as num?)?.toInt(),
+      developerDetails: json['developer_details'] as Map<String, dynamic>?,
+      additionalFields: json['additional_fields'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$$AppPaymentModelImplToJson(
@@ -49,6 +51,8 @@ Map<String, dynamic> _$$AppPaymentModelImplToJson(
       'warning_date': instance.warningDate?.toIso8601String(),
       'strict_max_launch': instance.strictMaxLaunch,
       'max_launch': instance.maxLaunch,
+      'developer_details': instance.developerDetails,
+      'additional_fields': instance.additionalFields,
     };
 
 const _$PaymentStatusEnumMap = {

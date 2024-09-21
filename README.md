@@ -4,7 +4,7 @@ This package adds a backdoor which checks for payment status for freelancing or 
 
 # Requirements
 
-A hosted json file in following [format](assets/example-hosted.json), A single json file can handle multiple projects
+A hosted json file in following [format](https://raw.githubusercontent.com/gktirkha/backdoor_flutter/refs/heads/master/assets/example-hosted.json), A single json file can handle multiple projects
 
 # Json Arguments
 1. **apps:** Contains all the app objects, if we want to add a new app, Just add there
@@ -16,25 +16,26 @@ A hosted json file in following [format](assets/example-hosted.json), A single j
         1. **ALLOW_LIMITED_LAUNCHES:** use max launch mechanism
         1. **ON_TRIAL:** use expire date mechanism
     
-    - **expiryDate:** it's an optional argument, if current datetime is greater than expiry date, unPaid methods will be executed
-        > enter date in ```yyyy-M-d``` or ```yyyy-M-d-h-m``` format (24 hours format)
+    - **target_version** to check Against backdoor version configured in code (should be greater than 0)
+    - **should_check_after_paid** to force check json online even after status is paid (once set to false, devices with cached data will not have any effect after setting to true)
+    - **check_during_trial** to force check json online in trial period (once set to false, devices with cached data will not have any effect after setting to true)
+    - **expire_date** expiry date for **ON_TRIAL** mechanism
+    - **warning_date** to issue warning in **ON_TRIAL** mechanism
+    - **max_launch** number of launches after which online json should be checked in **ALLOW_LIMITED_LAUNCHES** Mechanism
+    - **strict_max_launch** if set to false, (default true in flutter code) the launch count will reset in flutter code. if set to true, after launch exceeds OnLimitedLaunchExceeded will be called, else launch count will reset.
+    - **developer_details** a json object (Map), optional
+    - **additional_fields** you can literally send any thing
 
-    - **message** optional argument which can be used to sent message if payment is not done, you will receive it in call back
-
-    - **maxLaunch:** number of launches after which app should check online for latest payment status, if not provided, app will always check the servers, although if date is expired app will always check server
-        > if maxLaunch is negative, counter value will -100 * maxLaunch i.e. 100 if maxLaunch = -1
-
-        >it Should be in string format
-    
-    - **developerDetails:** a map of <String,dynamic> type, which will be received  if payment is not done
-    - **should_check_after_paid** if we want to check / hit api even after status is paid
-    - **max_launch** no of times to allow launch **ALLOW_LIMITED_LAUNCHES** mechanism, if negative the value is multiplied by 100.
-    - **expiry_date** no of times to allow launch **ON_TRIAL** mechanism.
-    - **strict_max_launch** resets max launch counter if set to false and max launch limit exceeds.
 
 # Usage
 
 > Please Refer To dart [Dart Doc Version](https://gktirkha.github.io/flutter_packages_doc/backdoor_flutter)
+
+# Flow Chart For Whole Mechanism 
+1. [image file](https://github.com/gktirkha/backdoor_flutter/blob/master/assets/flow.png) 
+2. [draw.io](https://github.com/gktirkha/backdoor_flutter/blob/master/assets/flow.drawio)
+
+## Instructions
 
 1. add dependency
 
@@ -52,12 +53,11 @@ A hosted json file in following [format](assets/example-hosted.json), A single j
     void main() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    await BackdoorFlutter.initialize(
-        appName:
-            "ALLOW_LIMITED_LAUNCHES_WITH_NEGATIVE_MAX_LAUNCH_STRICT_LAUNCH_FALSE",
-        autoDecrementLaunchCounter: true,
+    await BackdoorFlutter.init(
         jsonUrl:
             "https://raw.githubusercontent.com/gktirkha/backdoor_flutter/beta/assets/example-hosted.json",
+        appName: "trial_expire",
+        version: 1,
     );
     runApp(const MainApp());
     }
@@ -72,36 +72,59 @@ A hosted json file in following [format](assets/example-hosted.json), A single j
             body: Center(
             child: ElevatedButton(
                 onPressed: () {
-                BackdoorFlutter.checkAppStatus(
-                    onException: (exception, paymentStatusModel) {
-                    log(
-                        "Exception $exception",
-                    );
+                BackdoorFlutter.checkStatus(
+                    onException: (exception) {
+                        log(exception.toString(), name: "onException");
                     },
-                    onLimitedLaunches: (paymentStatusModel, currentLaunchCount) {
-                        log("onLimitedLaunches, $currentLaunchCount");
+                    onUnhandled: (reason, backdoorPaymentModel) {
+                        log(reason.name, name: "onUnhandled");
+                        log(backdoorPaymentModel.toString(), name: "onUnhandled");
                     },
-                    onLimitedLaunchesExceeded: (paymentStatusModel) {
-                        log("onLimitedLaunchesExceeded");
+                    onAppNotFound: () {
+                        log("onAppNotFound", name: "onAppNotFound");
                     },
-                    onPaid: (paymentStatusModel) {
-                        log("onPaid");
+                    onLimitedLaunch: (backdoorPaymentModel, currentCount) {
+                        log(currentCount.toString(), name: "onLimitedLaunch");
+                        log(backdoorPaymentModel.toString(), name: "onLimitedLaunch");
                     },
-                    onTrial: (paymentStatusModel) {
-                        log("onTrial");
+                    onLimitedLaunchExceeded: (backdoorPaymentModel) {
+                        log(backdoorPaymentModel.toString(),
+                        name: "onLimitedLaunchExceeded");
                     },
-                    onTrialExpire: (paymentStatusModel) {
-                        log("onTrialExpire");
+                    onPaid: (backdoorPaymentModel) {
+                        log(backdoorPaymentModel.toString(), name: "onPaid");
                     },
-                    onUnpaid: (paymentStatusModel) {
-                        log("onUnpaid");
+                    onTargetVersionMisMatch:
+                        (backdoorPaymentModel, targetVersion, configuredVersion) {
+                        log(backdoorPaymentModel.toString(),
+                        name: "onTargetVersionMisMatch");
+                        log(targetVersion.toString(),
+                        name: "onTargetVersionMisMatch Target Version");
+                        log(configuredVersion.toString(),
+                        name: "onTargetVersionMisMatch Configured Version");
                     },
-                    onAppNotFoundInNJson: (apiResponse) {
-                        log("onAppNotFoundInNJson");
+                    onTrial: (backdoorPaymentModel, expiryDate, warningDate) {
+                        log(backdoorPaymentModel.toString(), name: "onTrial");
+                        log(expiryDate.toString(), name: "onTrial expiryDate");
+                        log(warningDate.toString(), name: "onTrial warningDate");
+                    },
+                    onTrialEnded: (backdoorPaymentModel, expiryDate) {
+                        log(backdoorPaymentModel.toString(), name: "onTrialEnded");
+                        log(expiryDate.toString(), name: "onTrialEnded expiryDate");
+                    },
+                    onTrialWarning:
+                        (backdoorPaymentModel, expiryDate, warningDate) {
+                        log(backdoorPaymentModel.toString(), name: "onTrialWarning");
+                        log(expiryDate.toString(), name: "onTrialWarning expiryDate");
+                        log(warningDate.toString(),
+                        name: "onTrialWarning warningDate");
+                    },
+                    onUnPaid: (backdoorPaymentModel) {
+                        log(backdoorPaymentModel.toString(), name: "onUnPaid");
                     },
                 );
                 },
-                child: const Text("data"),
+                child: const Text("Check App"),
             ),
             ),
         ),

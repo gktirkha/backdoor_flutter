@@ -11,39 +11,75 @@ import 'model/payment_status_model.dart';
 import 'services/init_service.dart';
 import 'services/storage_service.dart';
 
+/// [BackdoorFlutter] Class Provides provides method to check payment status and act accordingly
+///
+/// it provides 2 methods
+/// 1. [init] to initialize configuration
+/// 2. [checkStatus] to check the status
 abstract class BackdoorFlutter {
-  static late final String jsonUrl;
+  static late final String _jsonUrl;
 
-  static late final String appName;
+  static late final String _appName;
 
-  static late final bool autoDecrementLaunchCount;
+  static late final bool _autoDecrementLaunchCount;
 
-  static late final double version;
+  static late final double _version;
 
   static const String _apiLogTag = 'BACKDOOR_FLUTTER_API_LOG';
 
+  /// Initializes the application configuration.
+  ///
+  /// This method sets up the necessary parameters for the application using either
+  /// provided arguments or environment variables. All parameters must be supplied either
+  /// directly in this method or through their respective environment variables.
+  ///
+  /// Parameters:
+  /// - [jsonUrl]: The URL where the JSON configuration file is hosted.
+  ///   Corresponding environment variable: `BACKDOOR_JSON_URL`.
+  /// - [appName]: The name of the app to be looked up in the JSON file.
+  ///   Corresponding environment variable: `BACKDOOR_APP_NAME`.
+  /// - [version]: The version of the backdoor rules, which must be greater than 0.
+  ///   Corresponding environment variable: `BACKDOOR_VERSION`.
+  /// - [autoDecrementLaunchCount]: If set to `true`, the launch count will be automatically managed.
+  ///   If `false`, you must manually decrement the launch count using the [decrementCount] method.
+  ///   Corresponding environment variable: `BACKDOOR_AUTO_DECREMENT`.
+  ///
+  /// Throws:
+  /// - An exception if any required parameters are missing or invalid.
+  ///
+  /// Returns:
+  /// - A [Future] that completes when the configuration has been successfully initialized.
   static Future<void> init({
     String? jsonUrl,
     String? appName,
-    bool autoDecrementLaunchCount = true,
     double? version,
+    bool autoDecrementLaunchCount = true,
   }) async {
-    BackdoorFlutter.jsonUrl = InitService.initializeUrl(jsonUrl);
-    BackdoorFlutter.appName = InitService.initializeAppName(appName);
-    BackdoorFlutter.autoDecrementLaunchCount = InitService.initializeAutoDecrement(autoDecrementLaunchCount);
-    BackdoorFlutter.version = InitService.initializeVersion(version);
+    _jsonUrl = InitService.initializeUrl(jsonUrl);
+    _appName = InitService.initializeAppName(appName);
+    _autoDecrementLaunchCount = InitService.initializeAutoDecrement(autoDecrementLaunchCount);
+    _version = InitService.initializeVersion(version);
     await StorageService.init();
-    await StorageService.setConfig(BackdoorFlutter.version, BackdoorFlutter.appName);
+    await StorageService.setConfig(_version, _appName);
   }
 
   static void _logger(dynamic data, {String name = 'BACKDOOR_FLUTTER'}) {
     log(data.toString(), name: name);
   }
 
+  /// Decrements the launch count for the application.
+  ///
+  /// This method reduces the recorded launch count by one. It can be used to manually
+  /// adjust the count, particularly when [autoDecrementLaunchCount] is set to `false`.
+  ///
+  /// Returns:
+  /// - A [Future] that completes when the launch count has been successfully decremented.
+  static Future<void> decrementCount() => StorageService.decrementCount();
+
   static Future<bool> _shouldCheckOnline() async {
     final BackdoorPaymentModel? backdoorPaymentModel = await StorageService.getPaymentModel();
     if (backdoorPaymentModel == null) return true;
-    if (backdoorPaymentModel.targetVersion != version) return true;
+    if (backdoorPaymentModel.targetVersion != _version) return true;
     switch (backdoorPaymentModel.status) {
       case PaymentStatus.PAID:
         return backdoorPaymentModel.shouldCheckAfterPaid;
@@ -95,7 +131,7 @@ abstract class BackdoorFlutter {
       }
 
       final res = (await dioClient.request(
-        jsonUrl,
+        _jsonUrl,
         options: Options(
           headers: httpHeaders,
           method: httpMethod,
@@ -106,7 +142,7 @@ abstract class BackdoorFlutter {
           .data;
 
       final BackdoorPaymentApiResponseModel apiResponseModel = BackdoorPaymentApiResponseModel.fromJson(res is Map ? res : jsonDecode(res));
-      return apiResponseModel.apps?[appName];
+      return apiResponseModel.apps?[_appName];
     } catch (e) {
       if (e is DioException) {
         final String message = switch (e.type) {
@@ -133,6 +169,36 @@ abstract class BackdoorFlutter {
     }
   }
 
+  /// Checks the status of the application by retrieving and validating payment model data.
+  ///
+  /// This method performs an online check for the payment model unless specified otherwise.
+  /// It handles various callbacks for different states of the application and potential exceptions.
+  /// The function can be customized with HTTP headers, query parameters, request body, and method type.
+  ///
+  /// Parameters:
+  /// - [httpHeaders]: Optional map of HTTP headers to send with the request.
+  /// - [httpQueryParameters]: Optional map of query parameters to include in the request.
+  /// - [httpRequestBody]: Optional map for the body of the request (for POST or PUT requests).
+  /// - [httpMethod]: The HTTP method to use for the request. Defaults to 'GET'.
+  /// - [showApiLogs]: Flag indicating whether to display API logs. Defaults to true.
+  /// - [onException]: Callback invoked when an exception occurs during the operation.
+  /// - [onUnhandled]: Callback invoked for unhandled cases or unexpected results.
+  /// - [onAppNotFound]: Optional callback for when the application is not found.
+  /// - [onPaid]: Callback invoked when the application is in a paid state.
+  /// - [onUnPaid]: Callback invoked when the application is in an unpaid state.
+  /// - [onLimitedLaunch]: Callback for handling limited launch scenarios.
+  /// - [onLimitedLaunchExceeded]: Callback for when limited launch is exceeded.
+  /// - [onTrial]: Callback for when the application is in a trial period.
+  /// - [onTrialWarning]: Callback for trial warning scenarios.
+  /// - [onTrialEnded]: Callback for when the trial period has ended.
+  /// - [onTargetVersionMisMatch]: Callback for when the target version does not match.
+  /// - [useCachedConfigOnNetworkException]: Flag indicating whether to use cached configuration in case of a network exception. Defaults to true.
+  ///
+  /// Throws:
+  /// - [BackdoorFlutterException] if there is an issue with the target version or configuration.
+  ///
+  /// Returns:
+  /// - A [Future] that completes when the status check is done.
   static Future<void> checkStatus({
     Map<String, dynamic>? httpHeaders,
     Map<String, dynamic>? httpQueryParameters,
@@ -188,9 +254,9 @@ abstract class BackdoorFlutter {
         );
       }
 
-      if (targetVersion != version) {
+      if (targetVersion != _version) {
         if (onTargetVersionMisMatch != null) {
-          onTargetVersionMisMatch(operationModel, targetVersion, version);
+          onTargetVersionMisMatch(operationModel, targetVersion, _version);
         } else {
           onUnhandled(OnUnhandledReason.TARGET_VERSION_MISMATCH, operationModel);
         }
@@ -302,7 +368,7 @@ abstract class BackdoorFlutter {
               onUnhandled(OnUnhandledReason.LIMITED_LAUNCH, operationModel);
             }
           }
-          if (autoDecrementLaunchCount) await StorageService.decrementCount();
+          if (_autoDecrementLaunchCount) await StorageService.decrementCount();
 
           break;
 
@@ -320,7 +386,7 @@ abstract class BackdoorFlutter {
             if (onTrialWarning != null) {
               onTrialWarning(operationModel, expiryDate, warningDate);
             } else {
-              onUnhandled(OnUnhandledReason.TRAIL_WARNING, operationModel);
+              onUnhandled(OnUnhandledReason.TRIAL_WARNING, operationModel);
             }
           } else if (now.isAfter(expiryDate)) {
             if (onTrialEnded != null) {

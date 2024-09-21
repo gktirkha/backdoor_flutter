@@ -208,6 +208,12 @@ mixin _$BackdoorPaymentModel {
   bool get strictMaxLaunch => throw _privateConstructorUsedError;
   @JsonKey(name: 'max_launch')
   int? get maxLaunch => throw _privateConstructorUsedError;
+  @JsonKey(name: 'developer_details')
+  Map<String, dynamic>? get developerDetails =>
+      throw _privateConstructorUsedError;
+  @JsonKey(name: 'additional_fields')
+  Map<String, dynamic>? get additionalFields =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this BackdoorPaymentModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -233,7 +239,11 @@ abstract class $BackdoorPaymentModelCopyWith<$Res> {
       @JsonKey(name: 'expire_date') DateTime? expireDateTime,
       @JsonKey(name: 'warning_date') DateTime? warningDate,
       @JsonKey(name: 'strict_max_launch') bool strictMaxLaunch,
-      @JsonKey(name: 'max_launch') int? maxLaunch});
+      @JsonKey(name: 'max_launch') int? maxLaunch,
+      @JsonKey(name: 'developer_details')
+      Map<String, dynamic>? developerDetails,
+      @JsonKey(name: 'additional_fields')
+      Map<String, dynamic>? additionalFields});
 }
 
 /// @nodoc
@@ -260,6 +270,8 @@ class _$BackdoorPaymentModelCopyWithImpl<$Res,
     Object? warningDate = freezed,
     Object? strictMaxLaunch = null,
     Object? maxLaunch = freezed,
+    Object? developerDetails = freezed,
+    Object? additionalFields = freezed,
   }) {
     return _then(_value.copyWith(
       status: freezed == status
@@ -294,6 +306,14 @@ class _$BackdoorPaymentModelCopyWithImpl<$Res,
           ? _value.maxLaunch
           : maxLaunch // ignore: cast_nullable_to_non_nullable
               as int?,
+      developerDetails: freezed == developerDetails
+          ? _value.developerDetails
+          : developerDetails // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+      additionalFields: freezed == additionalFields
+          ? _value.additionalFields
+          : additionalFields // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
     ) as $Val);
   }
 }
@@ -314,7 +334,11 @@ abstract class _$$AppPaymentModelImplCopyWith<$Res>
       @JsonKey(name: 'expire_date') DateTime? expireDateTime,
       @JsonKey(name: 'warning_date') DateTime? warningDate,
       @JsonKey(name: 'strict_max_launch') bool strictMaxLaunch,
-      @JsonKey(name: 'max_launch') int? maxLaunch});
+      @JsonKey(name: 'max_launch') int? maxLaunch,
+      @JsonKey(name: 'developer_details')
+      Map<String, dynamic>? developerDetails,
+      @JsonKey(name: 'additional_fields')
+      Map<String, dynamic>? additionalFields});
 }
 
 /// @nodoc
@@ -338,6 +362,8 @@ class __$$AppPaymentModelImplCopyWithImpl<$Res>
     Object? warningDate = freezed,
     Object? strictMaxLaunch = null,
     Object? maxLaunch = freezed,
+    Object? developerDetails = freezed,
+    Object? additionalFields = freezed,
   }) {
     return _then(_$AppPaymentModelImpl(
       status: freezed == status
@@ -372,6 +398,14 @@ class __$$AppPaymentModelImplCopyWithImpl<$Res>
           ? _value.maxLaunch
           : maxLaunch // ignore: cast_nullable_to_non_nullable
               as int?,
+      developerDetails: freezed == developerDetails
+          ? _value._developerDetails
+          : developerDetails // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+      additionalFields: freezed == additionalFields
+          ? _value._additionalFields
+          : additionalFields // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
     ));
   }
 }
@@ -388,7 +422,13 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
       @JsonKey(name: 'expire_date') this.expireDateTime,
       @JsonKey(name: 'warning_date') this.warningDate,
       @JsonKey(name: 'strict_max_launch') this.strictMaxLaunch = true,
-      @JsonKey(name: 'max_launch') this.maxLaunch});
+      @JsonKey(name: 'max_launch') this.maxLaunch,
+      @JsonKey(name: 'developer_details')
+      final Map<String, dynamic>? developerDetails,
+      @JsonKey(name: 'additional_fields')
+      final Map<String, dynamic>? additionalFields})
+      : _developerDetails = developerDetails,
+        _additionalFields = additionalFields;
 
   factory _$AppPaymentModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppPaymentModelImplFromJson(json);
@@ -417,10 +457,31 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
   @override
   @JsonKey(name: 'max_launch')
   final int? maxLaunch;
+  final Map<String, dynamic>? _developerDetails;
+  @override
+  @JsonKey(name: 'developer_details')
+  Map<String, dynamic>? get developerDetails {
+    final value = _developerDetails;
+    if (value == null) return null;
+    if (_developerDetails is EqualUnmodifiableMapView) return _developerDetails;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
+  final Map<String, dynamic>? _additionalFields;
+  @override
+  @JsonKey(name: 'additional_fields')
+  Map<String, dynamic>? get additionalFields {
+    final value = _additionalFields;
+    if (value == null) return null;
+    if (_additionalFields is EqualUnmodifiableMapView) return _additionalFields;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
 
   @override
   String toString() {
-    return 'BackdoorPaymentModel(status: $status, targetVersion: $targetVersion, shouldCheckAfterPaid: $shouldCheckAfterPaid, checkDuringTrial: $checkDuringTrial, expireDateTime: $expireDateTime, warningDate: $warningDate, strictMaxLaunch: $strictMaxLaunch, maxLaunch: $maxLaunch)';
+    return 'BackdoorPaymentModel(status: $status, targetVersion: $targetVersion, shouldCheckAfterPaid: $shouldCheckAfterPaid, checkDuringTrial: $checkDuringTrial, expireDateTime: $expireDateTime, warningDate: $warningDate, strictMaxLaunch: $strictMaxLaunch, maxLaunch: $maxLaunch, developerDetails: $developerDetails, additionalFields: $additionalFields)';
   }
 
   @override
@@ -442,7 +503,11 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
             (identical(other.strictMaxLaunch, strictMaxLaunch) ||
                 other.strictMaxLaunch == strictMaxLaunch) &&
             (identical(other.maxLaunch, maxLaunch) ||
-                other.maxLaunch == maxLaunch));
+                other.maxLaunch == maxLaunch) &&
+            const DeepCollectionEquality()
+                .equals(other._developerDetails, _developerDetails) &&
+            const DeepCollectionEquality()
+                .equals(other._additionalFields, _additionalFields));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -456,7 +521,9 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
       expireDateTime,
       warningDate,
       strictMaxLaunch,
-      maxLaunch);
+      maxLaunch,
+      const DeepCollectionEquality().hash(_developerDetails),
+      const DeepCollectionEquality().hash(_additionalFields));
 
   /// Create a copy of BackdoorPaymentModel
   /// with the given fields replaced by the non-null parameter values.
@@ -484,8 +551,11 @@ abstract class _AppPaymentModel implements BackdoorPaymentModel {
       @JsonKey(name: 'expire_date') final DateTime? expireDateTime,
       @JsonKey(name: 'warning_date') final DateTime? warningDate,
       @JsonKey(name: 'strict_max_launch') final bool strictMaxLaunch,
-      @JsonKey(name: 'max_launch')
-      final int? maxLaunch}) = _$AppPaymentModelImpl;
+      @JsonKey(name: 'max_launch') final int? maxLaunch,
+      @JsonKey(name: 'developer_details')
+      final Map<String, dynamic>? developerDetails,
+      @JsonKey(name: 'additional_fields')
+      final Map<String, dynamic>? additionalFields}) = _$AppPaymentModelImpl;
 
   factory _AppPaymentModel.fromJson(Map<String, dynamic> json) =
       _$AppPaymentModelImpl.fromJson;
@@ -514,6 +584,12 @@ abstract class _AppPaymentModel implements BackdoorPaymentModel {
   @override
   @JsonKey(name: 'max_launch')
   int? get maxLaunch;
+  @override
+  @JsonKey(name: 'developer_details')
+  Map<String, dynamic>? get developerDetails;
+  @override
+  @JsonKey(name: 'additional_fields')
+  Map<String, dynamic>? get additionalFields;
 
   /// Create a copy of BackdoorPaymentModel
   /// with the given fields replaced by the non-null parameter values.
