@@ -23,9 +23,10 @@ class BackdoorPaymentModel with _$BackdoorPaymentModel {
     @JsonKey(name: 'status') PaymentStatus? status,
     @JsonKey(name: 'target_version') double? targetVersion,
     @Default(false) @JsonKey(name: 'should_check_after_paid') bool shouldCheckAfterPaid,
+    @Default(false) @JsonKey(name: 'check_during_trial') bool checkDuringTrial,
     @JsonKey(name: 'expire_date') DateTime? expireDateTime,
     @JsonKey(name: 'warning_date') DateTime? warningDate,
-    @Default(false) @JsonKey(name: 'strict_max_launch') bool strictMaxLaunch,
+    @Default(true) @JsonKey(name: 'strict_max_launch') bool strictMaxLaunch,
     @JsonKey(name: 'max_launch') int? maxLaunch,
   }) = _AppPaymentModel;
 

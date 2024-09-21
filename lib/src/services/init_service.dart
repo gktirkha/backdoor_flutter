@@ -30,7 +30,7 @@ abstract class InitService {
   static double initializeVersion(double? version) {
     double backdoorVersion = double.tryParse(String.fromEnvironment('BACKDOOR_VERSION', defaultValue: version?.toString() ?? '0.0')) ?? 0.0;
 
-    if (backdoorVersion == 0) {
+    if (backdoorVersion <= 0) {
       throw BackdoorFlutterException(
         message: 'Please Provide non zero BACKDOOR_VERSION in env or init method',
         type: BackdoorFlutterExceptionType.VALUE_NOT_FOUND,

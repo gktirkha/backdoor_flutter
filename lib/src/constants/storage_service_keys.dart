@@ -6,4 +6,6 @@ abstract class StorageServiceKeys {
   static String get paymentModel => '${_ref}PAYMENT_MODEL';
 
   static String get launchCount => '${_ref}LAUNCH_COUNT';
+
+  static String get appName => '${_ref}APP_NAME';
 }

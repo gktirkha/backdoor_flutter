@@ -198,6 +198,8 @@ mixin _$BackdoorPaymentModel {
   double? get targetVersion => throw _privateConstructorUsedError;
   @JsonKey(name: 'should_check_after_paid')
   bool get shouldCheckAfterPaid => throw _privateConstructorUsedError;
+  @JsonKey(name: 'check_during_trial')
+  bool get checkDuringTrial => throw _privateConstructorUsedError;
   @JsonKey(name: 'expire_date')
   DateTime? get expireDateTime => throw _privateConstructorUsedError;
   @JsonKey(name: 'warning_date')
@@ -227,6 +229,7 @@ abstract class $BackdoorPaymentModelCopyWith<$Res> {
       {@JsonKey(name: 'status') PaymentStatus? status,
       @JsonKey(name: 'target_version') double? targetVersion,
       @JsonKey(name: 'should_check_after_paid') bool shouldCheckAfterPaid,
+      @JsonKey(name: 'check_during_trial') bool checkDuringTrial,
       @JsonKey(name: 'expire_date') DateTime? expireDateTime,
       @JsonKey(name: 'warning_date') DateTime? warningDate,
       @JsonKey(name: 'strict_max_launch') bool strictMaxLaunch,
@@ -252,6 +255,7 @@ class _$BackdoorPaymentModelCopyWithImpl<$Res,
     Object? status = freezed,
     Object? targetVersion = freezed,
     Object? shouldCheckAfterPaid = null,
+    Object? checkDuringTrial = null,
     Object? expireDateTime = freezed,
     Object? warningDate = freezed,
     Object? strictMaxLaunch = null,
@@ -269,6 +273,10 @@ class _$BackdoorPaymentModelCopyWithImpl<$Res,
       shouldCheckAfterPaid: null == shouldCheckAfterPaid
           ? _value.shouldCheckAfterPaid
           : shouldCheckAfterPaid // ignore: cast_nullable_to_non_nullable
+              as bool,
+      checkDuringTrial: null == checkDuringTrial
+          ? _value.checkDuringTrial
+          : checkDuringTrial // ignore: cast_nullable_to_non_nullable
               as bool,
       expireDateTime: freezed == expireDateTime
           ? _value.expireDateTime
@@ -302,6 +310,7 @@ abstract class _$$AppPaymentModelImplCopyWith<$Res>
       {@JsonKey(name: 'status') PaymentStatus? status,
       @JsonKey(name: 'target_version') double? targetVersion,
       @JsonKey(name: 'should_check_after_paid') bool shouldCheckAfterPaid,
+      @JsonKey(name: 'check_during_trial') bool checkDuringTrial,
       @JsonKey(name: 'expire_date') DateTime? expireDateTime,
       @JsonKey(name: 'warning_date') DateTime? warningDate,
       @JsonKey(name: 'strict_max_launch') bool strictMaxLaunch,
@@ -324,6 +333,7 @@ class __$$AppPaymentModelImplCopyWithImpl<$Res>
     Object? status = freezed,
     Object? targetVersion = freezed,
     Object? shouldCheckAfterPaid = null,
+    Object? checkDuringTrial = null,
     Object? expireDateTime = freezed,
     Object? warningDate = freezed,
     Object? strictMaxLaunch = null,
@@ -341,6 +351,10 @@ class __$$AppPaymentModelImplCopyWithImpl<$Res>
       shouldCheckAfterPaid: null == shouldCheckAfterPaid
           ? _value.shouldCheckAfterPaid
           : shouldCheckAfterPaid // ignore: cast_nullable_to_non_nullable
+              as bool,
+      checkDuringTrial: null == checkDuringTrial
+          ? _value.checkDuringTrial
+          : checkDuringTrial // ignore: cast_nullable_to_non_nullable
               as bool,
       expireDateTime: freezed == expireDateTime
           ? _value.expireDateTime
@@ -370,9 +384,10 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
       @JsonKey(name: 'target_version') this.targetVersion,
       @JsonKey(name: 'should_check_after_paid')
       this.shouldCheckAfterPaid = false,
+      @JsonKey(name: 'check_during_trial') this.checkDuringTrial = false,
       @JsonKey(name: 'expire_date') this.expireDateTime,
       @JsonKey(name: 'warning_date') this.warningDate,
-      @JsonKey(name: 'strict_max_launch') this.strictMaxLaunch = false,
+      @JsonKey(name: 'strict_max_launch') this.strictMaxLaunch = true,
       @JsonKey(name: 'max_launch') this.maxLaunch});
 
   factory _$AppPaymentModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -388,6 +403,9 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
   @JsonKey(name: 'should_check_after_paid')
   final bool shouldCheckAfterPaid;
   @override
+  @JsonKey(name: 'check_during_trial')
+  final bool checkDuringTrial;
+  @override
   @JsonKey(name: 'expire_date')
   final DateTime? expireDateTime;
   @override
@@ -402,7 +420,7 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
 
   @override
   String toString() {
-    return 'BackdoorPaymentModel(status: $status, targetVersion: $targetVersion, shouldCheckAfterPaid: $shouldCheckAfterPaid, expireDateTime: $expireDateTime, warningDate: $warningDate, strictMaxLaunch: $strictMaxLaunch, maxLaunch: $maxLaunch)';
+    return 'BackdoorPaymentModel(status: $status, targetVersion: $targetVersion, shouldCheckAfterPaid: $shouldCheckAfterPaid, checkDuringTrial: $checkDuringTrial, expireDateTime: $expireDateTime, warningDate: $warningDate, strictMaxLaunch: $strictMaxLaunch, maxLaunch: $maxLaunch)';
   }
 
   @override
@@ -415,6 +433,8 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
                 other.targetVersion == targetVersion) &&
             (identical(other.shouldCheckAfterPaid, shouldCheckAfterPaid) ||
                 other.shouldCheckAfterPaid == shouldCheckAfterPaid) &&
+            (identical(other.checkDuringTrial, checkDuringTrial) ||
+                other.checkDuringTrial == checkDuringTrial) &&
             (identical(other.expireDateTime, expireDateTime) ||
                 other.expireDateTime == expireDateTime) &&
             (identical(other.warningDate, warningDate) ||
@@ -432,6 +452,7 @@ class _$AppPaymentModelImpl implements _AppPaymentModel {
       status,
       targetVersion,
       shouldCheckAfterPaid,
+      checkDuringTrial,
       expireDateTime,
       warningDate,
       strictMaxLaunch,
@@ -459,6 +480,7 @@ abstract class _AppPaymentModel implements BackdoorPaymentModel {
       {@JsonKey(name: 'status') final PaymentStatus? status,
       @JsonKey(name: 'target_version') final double? targetVersion,
       @JsonKey(name: 'should_check_after_paid') final bool shouldCheckAfterPaid,
+      @JsonKey(name: 'check_during_trial') final bool checkDuringTrial,
       @JsonKey(name: 'expire_date') final DateTime? expireDateTime,
       @JsonKey(name: 'warning_date') final DateTime? warningDate,
       @JsonKey(name: 'strict_max_launch') final bool strictMaxLaunch,
@@ -477,6 +499,9 @@ abstract class _AppPaymentModel implements BackdoorPaymentModel {
   @override
   @JsonKey(name: 'should_check_after_paid')
   bool get shouldCheckAfterPaid;
+  @override
+  @JsonKey(name: 'check_during_trial')
+  bool get checkDuringTrial;
   @override
   @JsonKey(name: 'expire_date')
   DateTime? get expireDateTime;

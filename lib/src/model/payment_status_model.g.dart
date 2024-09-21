@@ -27,13 +27,14 @@ _$AppPaymentModelImpl _$$AppPaymentModelImplFromJson(
       status: $enumDecodeNullable(_$PaymentStatusEnumMap, json['status']),
       targetVersion: (json['target_version'] as num?)?.toDouble(),
       shouldCheckAfterPaid: json['should_check_after_paid'] as bool? ?? false,
+      checkDuringTrial: json['check_during_trial'] as bool? ?? false,
       expireDateTime: json['expire_date'] == null
           ? null
           : DateTime.parse(json['expire_date'] as String),
       warningDate: json['warning_date'] == null
           ? null
           : DateTime.parse(json['warning_date'] as String),
-      strictMaxLaunch: json['strict_max_launch'] as bool? ?? false,
+      strictMaxLaunch: json['strict_max_launch'] as bool? ?? true,
       maxLaunch: (json['max_launch'] as num?)?.toInt(),
     );
 
@@ -43,6 +44,7 @@ Map<String, dynamic> _$$AppPaymentModelImplToJson(
       'status': _$PaymentStatusEnumMap[instance.status],
       'target_version': instance.targetVersion,
       'should_check_after_paid': instance.shouldCheckAfterPaid,
+      'check_during_trial': instance.checkDuringTrial,
       'expire_date': instance.expireDateTime?.toIso8601String(),
       'warning_date': instance.warningDate?.toIso8601String(),
       'strict_max_launch': instance.strictMaxLaunch,

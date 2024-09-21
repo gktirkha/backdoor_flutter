@@ -25,7 +25,7 @@ abstract class BackdoorFlutter {
   static Future<void> init({
     String? jsonUrl,
     String? appName,
-    bool? autoDecrementLaunchCount,
+    bool autoDecrementLaunchCount = true,
     double? version,
   }) async {
     BackdoorFlutter.jsonUrl = InitService.initializeUrl(jsonUrl);
@@ -33,7 +33,7 @@ abstract class BackdoorFlutter {
     BackdoorFlutter.autoDecrementLaunchCount = InitService.initializeAutoDecrement(autoDecrementLaunchCount);
     BackdoorFlutter.version = InitService.initializeVersion(version);
     await StorageService.init();
-    await StorageService.setVersion(BackdoorFlutter.version);
+    await StorageService.setConfig(BackdoorFlutter.version, BackdoorFlutter.appName);
   }
 
   static void _logger(dynamic data, {String name = 'BACKDOOR_FLUTTER'}) {
@@ -53,7 +53,7 @@ abstract class BackdoorFlutter {
 
       case PaymentStatus.ALLOW_LIMITED_LAUNCHES:
         final currentCount = await StorageService.getLaunchCount();
-        return (currentCount != null && currentCount > 0);
+        return (currentCount == null || currentCount <= 0);
 
       case PaymentStatus.ON_TRIAL:
         final now = DateTime.now();
@@ -63,7 +63,7 @@ abstract class BackdoorFlutter {
         if (warningDate != null && now.isAfter(warningDate) && now.isBefore(expiryDate)) {
           return true;
         } else {
-          return now.isAfter(expiryDate);
+          return now.isBefore(expiryDate) ? backdoorPaymentModel.checkDuringTrial : true;
         }
 
       case null:
@@ -133,7 +133,7 @@ abstract class BackdoorFlutter {
     }
   }
 
-  Future<void> checkStatus({
+  static Future<void> checkStatus({
     Map<String, dynamic>? httpHeaders,
     Map<String, dynamic>? httpQueryParameters,
     Map<String, dynamic>? httpRequestBody,
@@ -236,7 +236,7 @@ abstract class BackdoorFlutter {
     }
   }
 
-  Future<void> _handleExecution({
+  static Future<void> _handleExecution({
     required OnException onException,
     required OnUnhandled onUnhandled,
     OnAppNotFound? onAppNotFound,
@@ -271,6 +271,7 @@ abstract class BackdoorFlutter {
 
         case PaymentStatus.ALLOW_LIMITED_LAUNCHES:
           final allowedLaunches = operationModel.maxLaunch;
+          int? currentLaunchCount = await StorageService.getLaunchCount();
 
           if (allowedLaunches == null) {
             throw BackdoorFlutterException(
@@ -281,26 +282,27 @@ abstract class BackdoorFlutter {
           }
 
           if (isOnlineModel) {
-            if (!operationModel.strictMaxLaunch) {
+            if (!operationModel.strictMaxLaunch || (currentLaunchCount == null)) {
               StorageService.setLaunchCount(allowedLaunches);
             }
           }
 
-          final launchCount = await StorageService.getLaunchCount();
-          if (launchCount == null || launchCount == 0) {
+          currentLaunchCount = await StorageService.getLaunchCount();
+
+          if (currentLaunchCount == null || currentLaunchCount <= 0) {
             if (onLimitedLaunchExceeded != null) {
               onLimitedLaunchExceeded(operationModel);
             } else {
               onUnhandled(OnUnhandledReason.LIMITED_LAUNCH_EXCEEDED, operationModel);
             }
           } else {
-            if (autoDecrementLaunchCount) await StorageService.decrementCount();
             if (onLimitedLaunch != null) {
-              onLimitedLaunch(operationModel, launchCount);
+              onLimitedLaunch(operationModel, currentLaunchCount);
             } else {
               onUnhandled(OnUnhandledReason.LIMITED_LAUNCH, operationModel);
             }
           }
+          if (autoDecrementLaunchCount) await StorageService.decrementCount();
 
           break;
 
@@ -317,18 +319,21 @@ abstract class BackdoorFlutter {
           if (warningDate != null && now.isAfter(warningDate) && now.isBefore(expiryDate)) {
             if (onTrialWarning != null) {
               onTrialWarning(operationModel, expiryDate, warningDate);
+            } else {
+              onUnhandled(OnUnhandledReason.TRAIL_WARNING, operationModel);
             }
-            onUnhandled(OnUnhandledReason.TRAIL_WARNING, operationModel);
           } else if (now.isAfter(expiryDate)) {
             if (onTrialEnded != null) {
               onTrialEnded(operationModel, expiryDate);
+            } else {
+              onUnhandled(OnUnhandledReason.TRIAL_ENDED, operationModel);
             }
-            onUnhandled(OnUnhandledReason.TRIAL_ENDED, operationModel);
           } else if (now.isBefore(expiryDate)) {
             if (onTrial != null) {
               onTrial(operationModel, expiryDate, warningDate);
+            } else {
+              onUnhandled(OnUnhandledReason.TRIAL, operationModel);
             }
-            onUnhandled(OnUnhandledReason.TRIAL, operationModel);
           }
           break;
 
@@ -346,7 +351,7 @@ abstract class BackdoorFlutter {
     }
   }
 
-  BackdoorFlutterException _convertException(dynamic exception) {
+  static BackdoorFlutterException _convertException(dynamic exception) {
     if (exception is BackdoorFlutterException) {
       return exception;
     } else if (exception is Error) {

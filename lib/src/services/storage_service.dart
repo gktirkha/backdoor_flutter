@@ -24,13 +24,29 @@ abstract class StorageService {
     return _instance.getDouble(StorageServiceKeys.version);
   }
 
-  static Future<void> setVersion(double version) async {
-    final storedVersion = await _getVersion();
-    if (version == storedVersion) return;
+  static Future<void> _setAppName(String appName) async {
+    await _instance.setString(StorageServiceKeys.appName, appName);
+  }
 
-    if (storedVersion == null) {
+  static Future<String?> _getAppName() async {
+    return _instance.getString(StorageServiceKeys.appName);
+  }
+
+  static Future<void> setConfig(double version, String appName) async {
+    final storedVersion = await _getVersion();
+    final storedAppName = await _getAppName();
+
+    if ((version == storedVersion) && (appName == storedAppName)) return;
+
+    if (storedAppName != appName) {
       await _clear();
-      return await _setVersion(version);
+    }
+
+    if (storedVersion == null || storedAppName == null) {
+      await _clear();
+      await _setVersion(version);
+      await _setAppName(appName);
+      return;
     }
 
     if (version > storedVersion) {
@@ -69,7 +85,7 @@ abstract class StorageService {
   static Future<void> decrementCount() async {
     final currentCount = await getLaunchCount();
     if (currentCount == null) return;
-    if (currentCount == 0) return;
-    await setLaunchCount(currentCount - 1);
+    if (currentCount <= 0) return;
+    await _instance.setInt(StorageServiceKeys.launchCount, currentCount - 1);
   }
 }
