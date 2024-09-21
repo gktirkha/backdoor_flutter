@@ -1,18 +1,13 @@
-/// The Backdoor Flutter library.
+/// A Dart library for the Backdoor Flutter application.
 ///
-/// This library provides a set of tools for managing application payment status and controlling launch behaviors
-/// using configuration from a remote JSON source. It includes functionalities for initialization, checking app
-/// status, and handling various payment states.
-
+/// This library provides functionality for managing payment statuses,
+/// handling exceptions, and working with application configuration.
 library backdoor_flutter;
 
-// Export the core class responsible for managing payment status and launch control.
+// Exporting core functionalities of the Backdoor Flutter library.
 export './src/backdoor_flutter.dart';
-// Export the exception class used for handling errors in the BackdoorFlutter operations.
-export './src/backdoor_flutter_exception.dart';
-// Export type definitions used throughout the BackdoorFlutter library.
-export './src/backdoor_type_definitions.dart';
-// Export the data model representing the payment status and related information.
-export './src/models/backdoor_payment_status_model.dart';
-// Export the enumeration defining various payment statuses.
-export './src/payment_status_enum.dart';
+export './src/constants/backdoor_flutter_type_definitions.dart';
+export './src/exception/backdoor_flutter_exception.dart';
+export './src/model/payment_status_model.dart';
+export 'src/constants/on_unhandled_reason.dart';
+export 'src/constants/payment_status.dart';

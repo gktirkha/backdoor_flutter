@@ -2,324 +2,436 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
-import 'backdoor_flutter_exception.dart';
-import 'backdoor_type_definitions.dart';
-import 'init_service.dart';
-import 'models/backdoor_payment_status_model.dart';
-import 'payment_status_enum.dart';
-import 'share_preference_service.dart';
+import 'constants/backdoor_flutter_type_definitions.dart';
+import 'constants/on_unhandled_reason.dart';
+import 'constants/payment_status.dart';
+import 'exception/backdoor_flutter_exception.dart';
+import 'model/payment_status_model.dart';
+import 'services/init_service.dart';
+import 'services/storage_service.dart';
 
-/// A class responsible for managing application payment status and launch control.
+/// [BackdoorFlutter] Class Provides provides method to check payment status and act accordingly
+///
+/// it provides 2 methods
+/// 1. [init] to initialize configuration
+/// 2. [checkStatus] to check the status
 abstract class BackdoorFlutter {
-  /// The URL used to fetch the JSON configuration.
-  static late String jsonUrl;
+  static late final String _jsonUrl;
 
-  /// The name of the application.
-  static late String appName;
+  static late final String _appName;
 
-  /// A flag to determine if the launch counter should be auto-decremented.
-  static late bool autoDecrement;
+  static late final bool _autoDecrementLaunchCount;
 
-  /// Initializes the BackdoorFlutter configuration.
+  static late final double _version;
+
+  static const String _apiLogTag = 'BACKDOOR_FLUTTER_API_LOG';
+
+  static late bool _showApiLogs;
+
+  /// Initializes the application configuration.
   ///
-  /// [jsonUrl] The URL where the JSON configuration can be found.
-  /// [appName] The name of the application.
-  /// [autoDecrementLaunchCounter] A flag indicating if the launch counter should be auto-decremented.
-  static Future<void> initialize({
+  /// This method sets up the necessary parameters for the application using either
+  /// provided arguments or environment variables. All parameters must be supplied either
+  /// directly in this method or through their respective environment variables.
+  ///
+  /// Parameters:
+  /// - [jsonUrl] : The URL where the JSON configuration file is hosted.
+  ///   Corresponding environment variable: `BACKDOOR_JSON_URL`.
+  /// - [appName] : The name of the app to be looked up in the JSON file.
+  ///   Corresponding environment variable: `BACKDOOR_APP_NAME`.
+  /// - [version] : The version of the backdoor rules, which must be greater than 0.
+  ///   Corresponding environment variable: `BACKDOOR_VERSION`.
+  /// - [autoDecrementLaunchCount] : If set to `true`, the launch count will be automatically managed.
+  ///   If `false`, you must manually decrement the launch count using the [decrementCount] method.
+  ///   Corresponding environment variable: `BACKDOOR_AUTO_DECREMENT`.
+  ///
+  /// Throws:
+  /// - An exception if any required parameters are missing or invalid.
+  ///
+  /// Returns:
+  /// - A [Future] that completes when the configuration has been successfully initialized.
+  /// [showApiLogs] to show api logs, default true
+  static Future<void> init({
     String? jsonUrl,
     String? appName,
-    bool? autoDecrementLaunchCounter,
+    double? version,
+    bool showApiLogs = true,
+    bool autoDecrementLaunchCount = true,
   }) async {
-    BackdoorFlutter.jsonUrl = InitService.initializeUrl(jsonUrl);
-    BackdoorFlutter.appName = InitService.initializeAppName(appName);
-    BackdoorFlutter.autoDecrement = InitService.initializeAutoDecrement(autoDecrementLaunchCounter);
-
-    await SharePreferenceService.init();
+    _showApiLogs = showApiLogs;
+    _jsonUrl = InitService.initializeUrl(jsonUrl);
+    _appName = InitService.initializeAppName(appName);
+    _autoDecrementLaunchCount = InitService.initializeAutoDecrement(autoDecrementLaunchCount);
+    _version = InitService.initializeVersion(version);
+    await StorageService.init();
+    await StorageService.setConfig(_version, _appName);
   }
 
-  /// Decrements the launch counter if auto-decrement is enabled.
-  static Future<void> _decrementCounter() async {
-    if (!autoDecrement) return;
-    await decrementLaunchCounter();
+  static void _logger(dynamic data, {String name = 'BACKDOOR_FLUTTER'}) {
+    log(data.toString(), name: name);
   }
 
-  /// Decrements the launch counter in shared preferences.
-  static Future<void> decrementLaunchCounter() async {
-    await SharePreferenceService.decrease();
-  }
-
-  /// Checks if the app status should be verified against the model.
+  /// Decrements the launch count for the application.
   ///
-  /// [model] The [BackdoorPaymentModel] to check.
-  /// Returns true if the app status requires verification.
-  static Future<bool> _checkFromModel(
-    BackdoorPaymentModel model,
-  ) async {
-    switch (model.status) {
-      case PaymentStatusEnum.PAID:
-        return model.shouldCheckAfterPaid;
+  /// This method reduces the recorded launch count by one. It can be used to manually
+  /// adjust the count, particularly when [autoDecrementLaunchCount] is set to `false`.
+  ///
+  /// Returns:
+  /// - A [Future] that completes when the launch count has been successfully decremented.
+  static Future<void> decrementCount() => StorageService.decrementCount();
 
-      case PaymentStatusEnum.UNPAID:
+  static Future<bool> _shouldCheckOnline() async {
+    final BackdoorPaymentModel? backdoorPaymentModel = await StorageService.getPaymentModel();
+    if (backdoorPaymentModel == null) return true;
+    if (backdoorPaymentModel.targetVersion != _version) return true;
+    switch (backdoorPaymentModel.status) {
+      case PaymentStatus.PAID:
+        return backdoorPaymentModel.shouldCheckAfterPaid;
+
+      case PaymentStatus.UNPAID:
         return true;
 
-      case PaymentStatusEnum.ALLOW_LIMITED_LAUNCHES:
-        final launchCount = await SharePreferenceService.getLaunchCount();
-        return launchCount == null || launchCount == 0;
+      case PaymentStatus.ALLOW_LIMITED_LAUNCHES:
+        final currentCount = await StorageService.getLaunchCount();
+        return (currentCount == null || currentCount <= 0);
 
-      case PaymentStatusEnum.ON_TRIAL:
-        final expiryDate = (await SharePreferenceService.getPaymentModel())?.expiryDate;
-        return expiryDate != null && expiryDate.isBefore(DateTime.now());
+      case PaymentStatus.ON_TRIAL:
+        final now = DateTime.now();
+        final warningDate = backdoorPaymentModel.warningDate;
+        final expiryDate = backdoorPaymentModel.expireDateTime;
+        if (expiryDate == null) return true;
+        if (warningDate != null && now.isAfter(warningDate) && now.isBefore(expiryDate)) {
+          return true;
+        } else {
+          return now.isBefore(expiryDate) ? backdoorPaymentModel.checkDuringTrial : true;
+        }
 
-      default:
+      case null:
         return true;
     }
   }
 
-  /// Determines if the app status should be checked online.
-  ///
-  /// Returns true if the status should be checked online, otherwise false.
-  static Future<bool> _shouldCheckOnline() async {
-    final BackdoorPaymentModel? model = await SharePreferenceService.getPaymentModel();
-    if (model == null) return true;
-
-    final res = await _checkFromModel(model);
-    return res;
-  }
-
-  /// Fetches the payment model from the online JSON configuration.
-  ///
-  /// [httpHeaders] HTTP headers for the request.
-  /// [httpQueryParameters] Query parameters for the request.
-  /// [httpRequestBody] Body of the HTTP request.
-  /// [httpMethod] HTTP method to use for the request (GET, POST, etc.).
-  /// [onAppNotFoundInJson] Callback for when the app is not found in the JSON response.
-  /// [showApiLogs] Flag indicating if API logs should be shown.
-  ///
-  /// Returns the BackdoorPaymentModel fetched from the JSON response.
-  static Future<BackdoorPaymentModel> _onlineModel({
+  static Future<BackdoorPaymentModel?> _onlineModel({
     required Map<String, dynamic> httpHeaders,
     required Map<String, dynamic> httpQueryParameters,
     required Map<String, dynamic> httpRequestBody,
     required String httpMethod,
-    required OnAppNotFoundInJson? onAppNotFoundInJson,
-    required bool showApiLogs,
   }) async {
     try {
-      final dio = Dio(
+      final Dio dioClient = Dio(
         BaseOptions(
-          sendTimeout: const Duration(minutes: 5),
-          connectTimeout: const Duration(minutes: 5),
-          receiveTimeout: const Duration(minutes: 5),
+          sendTimeout: const Duration(minutes: 10),
+          connectTimeout: const Duration(minutes: 10),
+          receiveTimeout: const Duration(minutes: 10),
         ),
       );
-
-      if (showApiLogs) {
-        dio.interceptors.addAll(
-          [
-            LogInterceptor(
-              logPrint: (object) => _logger(object, name: 'BACKDOOR_API_LOGS'),
-            ),
-          ],
+      if (_showApiLogs) {
+        dioClient.interceptors.add(
+          LogInterceptor(
+            logPrint: (object) => _logger(object, name: _apiLogTag),
+          ),
         );
       }
 
-      final response = await dio.request(
-        jsonUrl,
+      final res = (await dioClient.request(
+        _jsonUrl,
         options: Options(
           headers: httpHeaders,
           method: httpMethod,
         ),
         queryParameters: httpQueryParameters,
         data: httpRequestBody,
-      );
+      ))
+          .data;
 
-      final responseData = response.data;
-      final Map<String, dynamic> jsonData = responseData is String ? jsonDecode(responseData) : responseData as Map<String, dynamic>;
-
-      final paymentStatusModel = BackdoorPaymentApiResponseModel.fromJson(jsonData);
-
-      if (showApiLogs) {
-        _logger(
-          'Json From $jsonUrl:\n${paymentStatusModel.toJson()}',
-          name: 'BACKDOOR_API_LOGS',
-        );
-      }
-
-      final selectedApp = paymentStatusModel.apps?[appName];
-      if (selectedApp == null) {
-        onAppNotFoundInJson?.call(paymentStatusModel);
-        throw BackdoorFlutterException(
-          message: 'App $appName not found in JSON.',
-        );
-      }
-
-      return selectedApp;
+      final BackdoorPaymentApiResponseModel apiResponseModel = BackdoorPaymentApiResponseModel.fromJson(res is Map ? res : jsonDecode(res));
+      return apiResponseModel.apps?[_appName];
     } catch (e) {
-      _logger('Error fetching or parsing JSON: ${e.toString()}');
-      rethrow;
+      if (e is DioException) {
+        final String message = switch (e.type) {
+          DioExceptionType.connectionTimeout => 'CONNECTION TIME_OUT',
+          DioExceptionType.sendTimeout => 'SEND TIME_OUT',
+          DioExceptionType.receiveTimeout => 'RECEIVE TIME_OUT',
+          DioExceptionType.badCertificate => 'BAD_CERTIFICATE',
+          DioExceptionType.badResponse => 'BAD_RESPONSE',
+          DioExceptionType.cancel => 'CANCEL',
+          DioExceptionType.connectionError => 'CONNECTION_ERROR',
+          DioExceptionType.unknown => 'UNKNOWN',
+        };
+
+        throw BackdoorFlutterException(
+          message: message,
+          type: BackdoorFlutterExceptionType.NETWORK_EXCEPTION,
+          apiResponse: e.response?.toString(),
+          stackTrace: e.stackTrace,
+          operationConfiguration: await StorageService.getPaymentModel(),
+        );
+      } else {
+        rethrow;
+      }
     }
   }
 
-  /// Checks the application status and triggers the appropriate callback based on the status.
+  /// Checks the status of the application by retrieving and validating payment model data.
   ///
-  /// [onPaid] Callback for when the status is PAID.
-  /// [onLimitedLaunches] Callback for when the status allows limited launches.
-  /// [onUnpaid] Callback for when the status is UNPAID.
-  /// [onException] Callback for handling exceptions.
-  /// [onLimitedLaunchesExceeded] Callback for when the limited launches have been exceeded.
-  /// [onTrial] Callback for when the status is ON_TRIAL and trial is active.
-  /// [onTrialExpire] Callback for when the status is ON_TRIAL and trial has expired.
-  /// [httpHeaders] HTTP headers for the request.
-  /// [httpQueryParameters] Query parameters for the request.
-  /// [httpRequestBody] Body of the HTTP request.
-  /// [httpMethod] HTTP method to use for the request (GET, POST, etc.).
-  /// [onAppNotFoundInNJson] Callback for when the app is not found in the JSON response.
-  /// [showAPILogs] Flag indicating if API logs should be shown.
-  static Future<void> checkAppStatus({
-    OnPaid? onPaid,
-    OnLimitedLaunches? onLimitedLaunches,
-    OnUnpaid? onUnpaid,
-    OnException? onException,
-    OnLimitedLaunchesExceeded? onLimitedLaunchesExceeded,
-    OnTrial? onTrial,
-    OnTrialExpire? onTrialExpire,
+  /// This method performs an online check for the payment model unless specified otherwise.
+  /// It handles various callbacks for different states of the application and potential exceptions.
+  /// The function can be customized with HTTP headers, query parameters, request body, and method type.
+  ///
+  /// Parameters:
+  /// - [httpHeaders] : Optional map of HTTP headers to send with the request.
+  /// - [httpQueryParameters] : Optional map of query parameters to include in the request.
+  /// - [httpRequestBody] : Optional map for the body of the request (for POST or PUT requests).
+  /// - [httpMethod] : The HTTP method to use for the request. Defaults to 'GET'.
+  /// - [onException] : Callback invoked when an exception occurs during the operation.
+  /// - [onUnhandled] : Callback invoked for unhandled cases or unexpected results.
+  /// - [onAppNotFound] : Optional callback for when the application is not found.
+  /// - [onPaid] : Callback invoked when the application is in a paid state.
+  /// - [onUnPaid] : Callback invoked when the application is in an unpaid state.
+  /// - [onLimitedLaunch] : Callback for handling limited launch scenarios.
+  /// - [onLimitedLaunchExceeded] : Callback for when limited launch is exceeded.
+  /// - [onTrial] : Callback for when the application is in a trial period.
+  /// - [onTrialWarning] : Callback for trial warning scenarios.
+  /// - [onTrialEnded] : Callback for when the trial period has ended.
+  /// - [onTargetVersionMisMatch] : Callback for when the target version does not match.
+  /// - [useCachedConfigOnNetworkException] : Flag indicating whether to use cached configuration in case of a network exception. Defaults to true.
+  ///
+  /// Throws:
+  /// - [BackdoorFlutterException] if there is an issue with the target version or configuration.
+  ///
+  /// Returns:
+  /// - A [Future] that completes when the status check is done.
+  static Future<void> checkStatus({
     Map<String, dynamic>? httpHeaders,
     Map<String, dynamic>? httpQueryParameters,
     Map<String, dynamic>? httpRequestBody,
     String httpMethod = 'GET',
-    OnAppNotFoundInJson? onAppNotFoundInNJson,
-    bool showAPILogs = kDebugMode,
+    required OnException onException,
+    required OnUnhandled onUnhandled,
+    OnAppNotFound? onAppNotFound,
+    OnPaid? onPaid,
+    OnUnPaid? onUnPaid,
+    OnLimitedLaunch? onLimitedLaunch,
+    OnLimitedLaunchExceeded? onLimitedLaunchExceeded,
+    OnTrial? onTrial,
+    OnTrialWarning? onTrialWarning,
+    OnTrialEnded? onTrialEnded,
+    OnTargetVersionMisMatch? onTargetVersionMisMatch,
+    bool useCachedConfigOnNetworkException = true,
   }) async {
     try {
-      final checkOnline = await _shouldCheckOnline();
-
-      BackdoorPaymentModel? prefModel = await SharePreferenceService.getPaymentModel();
-
-      BackdoorPaymentModel? operationModel;
-
-      if (checkOnline) {
-        operationModel = await _onlineModel(
-          httpHeaders: httpHeaders ?? {},
-          httpMethod: httpMethod,
-          httpQueryParameters: httpQueryParameters ?? {},
-          httpRequestBody: httpRequestBody ?? {},
-          onAppNotFoundInJson: onAppNotFoundInNJson,
-          showApiLogs: showAPILogs,
-        );
-      } else {
-        operationModel = prefModel;
-      }
-
-      if (operationModel == null && prefModel != null && checkOnline) {
-        operationModel = prefModel;
-      }
+      final bool shouldCheckOnline = await _shouldCheckOnline();
+      BackdoorPaymentModel? storedModel = await StorageService.getPaymentModel();
+      final BackdoorPaymentModel? operationModel = shouldCheckOnline
+          ? await _onlineModel(
+              httpHeaders: httpHeaders ?? {},
+              httpQueryParameters: httpQueryParameters ?? {},
+              httpRequestBody: httpRequestBody ?? {},
+              httpMethod: httpMethod,
+            )
+          : storedModel;
 
       if (operationModel == null) {
-        if (checkOnline) return;
-        throw BackdoorFlutterException(message: 'Something Went Wrong');
-      }
-
-      if (checkOnline) {
-        prefModel = operationModel;
-        await SharePreferenceService.setPaymentModel(prefModel);
-
-        if (!operationModel.strictMaxLaunch && operationModel.status == PaymentStatusEnum.ALLOW_LIMITED_LAUNCHES) {
-          await SharePreferenceService.setLaunchCount(operationModel.maxLaunch);
+        if (onAppNotFound != null) {
+          onAppNotFound();
+        } else {
+          onUnhandled(OnUnhandledReason.APP_NOT_FOUND_IN_JSON, operationModel);
         }
+        return;
       }
 
-      handelModel(
-        operationModel,
-        onPaid,
-        onLimitedLaunches,
-        onUnpaid,
-        onException,
-        onLimitedLaunchesExceeded,
-        onTrial,
-        onTrialExpire,
-      );
-    } catch (e) {
-      BackdoorPaymentModel? prefModel = await SharePreferenceService.getPaymentModel();
+      if (shouldCheckOnline) {
+        storedModel = operationModel;
+        await StorageService.setPaymentModel(storedModel);
+      }
 
-      if (prefModel != null) {
-        return handelModel(
-          prefModel,
-          onPaid,
-          onLimitedLaunches,
-          onUnpaid,
-          onException,
-          onLimitedLaunchesExceeded,
-          onTrial,
-          onTrialExpire,
+      final targetVersion = operationModel.targetVersion;
+      if (targetVersion == null) {
+        throw BackdoorFlutterException(
+          message: 'target_version not set in remote json',
+          type: BackdoorFlutterExceptionType.CONFIGURATION_EXCEPTION,
+          operationConfiguration: operationModel,
         );
       }
+
+      if (targetVersion != _version) {
+        if (onTargetVersionMisMatch != null) {
+          onTargetVersionMisMatch(operationModel, targetVersion, _version);
+        } else {
+          onUnhandled(OnUnhandledReason.TARGET_VERSION_MISMATCH, operationModel);
+        }
+        return;
+      }
+      _handleExecution(
+        onPaid: onPaid,
+        onTrial: onTrial,
+        onUnPaid: onUnPaid,
+        onException: onException,
+        onUnhandled: onUnhandled,
+        onTrialEnded: onTrialEnded,
+        onAppNotFound: onAppNotFound,
+        operationModel: operationModel,
+        onTrialWarning: onTrialWarning,
+        onLimitedLaunch: onLimitedLaunch,
+        isOnlineModel: shouldCheckOnline,
+        onLimitedLaunchExceeded: onLimitedLaunchExceeded,
+        onTargetVersionMisMatch: onTargetVersionMisMatch,
+      );
+    } catch (e) {
+      final BackdoorPaymentModel? operationModel = await StorageService.getPaymentModel();
+      if (useCachedConfigOnNetworkException && operationModel != null && e is BackdoorFlutterException && e.type == BackdoorFlutterExceptionType.NETWORK_EXCEPTION) {
+        _handleExecution(
+          onPaid: onPaid,
+          onTrial: onTrial,
+          onUnPaid: onUnPaid,
+          isOnlineModel: false,
+          onException: onException,
+          onUnhandled: onUnhandled,
+          onTrialEnded: onTrialEnded,
+          onAppNotFound: onAppNotFound,
+          operationModel: operationModel,
+          onTrialWarning: onTrialWarning,
+          onLimitedLaunch: onLimitedLaunch,
+          onLimitedLaunchExceeded: onLimitedLaunchExceeded,
+          onTargetVersionMisMatch: onTargetVersionMisMatch,
+        );
+      }
+
       _logger(e);
-      if (e is Exception) onException?.call(e, null);
+      onException(_convertException(e));
     }
   }
 
-  /// Logs messages or errors to the console.
-  ///
-  /// [data] The data to log.
-  /// [name] The name of the log.
-  static void _logger(dynamic data, {String name = 'BACKDOOR_FLUTTER'}) {
-    log(data.toString(), name: name);
+  static Future<void> _handleExecution({
+    required OnException onException,
+    required OnUnhandled onUnhandled,
+    OnAppNotFound? onAppNotFound,
+    OnPaid? onPaid,
+    OnUnPaid? onUnPaid,
+    OnLimitedLaunch? onLimitedLaunch,
+    OnLimitedLaunchExceeded? onLimitedLaunchExceeded,
+    OnTrial? onTrial,
+    OnTrialWarning? onTrialWarning,
+    OnTrialEnded? onTrialEnded,
+    OnTargetVersionMisMatch? onTargetVersionMisMatch,
+    required BackdoorPaymentModel operationModel,
+    required bool isOnlineModel,
+  }) async {
+    try {
+      switch (operationModel.status) {
+        case PaymentStatus.PAID:
+          if (onPaid != null) {
+            onPaid(operationModel);
+          } else {
+            onUnhandled(OnUnhandledReason.PAID, operationModel);
+          }
+          break;
+
+        case PaymentStatus.UNPAID:
+          if (onUnPaid != null) {
+            onUnPaid(operationModel);
+          } else {
+            onUnhandled(OnUnhandledReason.UNPAID, operationModel);
+          }
+          break;
+
+        case PaymentStatus.ALLOW_LIMITED_LAUNCHES:
+          final allowedLaunches = operationModel.maxLaunch;
+          int? currentLaunchCount = await StorageService.getLaunchCount();
+
+          if (allowedLaunches == null) {
+            throw BackdoorFlutterException(
+              message: 'max_launch not set for ALLOW_LIMITED_LAUNCHES mechanism in remote json file',
+              type: BackdoorFlutterExceptionType.CONFIGURATION_EXCEPTION,
+              operationConfiguration: operationModel,
+            );
+          }
+
+          if (isOnlineModel) {
+            if (!operationModel.strictMaxLaunch || (currentLaunchCount == null)) {
+              StorageService.setLaunchCount(allowedLaunches);
+            }
+          }
+
+          currentLaunchCount = await StorageService.getLaunchCount();
+
+          if (currentLaunchCount == null || currentLaunchCount <= 0) {
+            if (onLimitedLaunchExceeded != null) {
+              onLimitedLaunchExceeded(operationModel);
+            } else {
+              onUnhandled(OnUnhandledReason.LIMITED_LAUNCH_EXCEEDED, operationModel);
+            }
+          } else {
+            if (onLimitedLaunch != null) {
+              onLimitedLaunch(operationModel, currentLaunchCount);
+            } else {
+              onUnhandled(OnUnhandledReason.LIMITED_LAUNCH, operationModel);
+            }
+          }
+          if (_autoDecrementLaunchCount) await StorageService.decrementCount();
+
+          break;
+
+        case PaymentStatus.ON_TRIAL:
+          final now = DateTime.now();
+          final warningDate = operationModel.warningDate;
+          final expiryDate = operationModel.expireDateTime;
+          if (expiryDate == null) {
+            throw BackdoorFlutterException(
+              message: 'expire_date not set for ON_TRIAL mechanism in remote json file',
+              type: BackdoorFlutterExceptionType.CONFIGURATION_EXCEPTION,
+            );
+          }
+          if (warningDate != null && now.isAfter(warningDate) && now.isBefore(expiryDate)) {
+            if (onTrialWarning != null) {
+              onTrialWarning(operationModel, expiryDate, warningDate);
+            } else {
+              onUnhandled(OnUnhandledReason.TRIAL_WARNING, operationModel);
+            }
+          } else if (now.isAfter(expiryDate)) {
+            if (onTrialEnded != null) {
+              onTrialEnded(operationModel, expiryDate);
+            } else {
+              onUnhandled(OnUnhandledReason.TRIAL_ENDED, operationModel);
+            }
+          } else if (now.isBefore(expiryDate)) {
+            if (onTrial != null) {
+              onTrial(operationModel, expiryDate, warningDate);
+            } else {
+              onUnhandled(OnUnhandledReason.TRIAL, operationModel);
+            }
+          }
+          break;
+
+        case null:
+          BackdoorFlutterException(
+            message: 'UNKNOWN_PAYMENT_STATUS, Please Make Sure that Payment status in json is one of following\nPAID\nUNPAID\nALLOW_LIMITED_LAUNCHES\nON_TRIAL,',
+            type: BackdoorFlutterExceptionType.UNKNOWN_PAYMENT_STATUS,
+            operationConfiguration: operationModel,
+          );
+          break;
+      }
+    } catch (e) {
+      _logger(e);
+      onException(_convertException(e));
+    }
   }
 
-  /// Handles the BackdoorPaymentModel based on its status and triggers appropriate callbacks.
-  ///
-  /// [operationModel] The BackdoorPaymentModel to handle.
-  /// [onPaid] Callback for when the status is PAID.
-  /// [onLimitedLaunches] Callback for when the status allows limited launches.
-  /// [onUnpaid] Callback for when the status is UNPAID.
-  /// [onException] Callback for handling exceptions.
-  /// [onLimitedLaunchesExceeded] Callback for when the limited launches have been exceeded.
-  /// [onTrial] Callback for when the status is ON_TRIAL and trial is active.
-  /// [onTrialExpire] Callback for when the status is ON_TRIAL and trial has expired.
-  static Future<void> handelModel(
-    BackdoorPaymentModel operationModel,
-    OnPaid? onPaid,
-    OnLimitedLaunches? onLimitedLaunches,
-    OnUnpaid? onUnpaid,
-    OnException? onException,
-    OnLimitedLaunchesExceeded? onLimitedLaunchesExceeded,
-    OnTrial? onTrial,
-    OnTrialExpire? onTrialExpire,
-  ) async {
-    switch (operationModel.status) {
-      case PaymentStatusEnum.PAID:
-        onPaid?.call(operationModel);
-        break;
-
-      case PaymentStatusEnum.UNPAID:
-        onUnpaid?.call(operationModel);
-        break;
-
-      case PaymentStatusEnum.ALLOW_LIMITED_LAUNCHES:
-        final launchCount = await SharePreferenceService.getLaunchCount();
-        if (launchCount != null && launchCount > 0) {
-          onLimitedLaunches?.call(operationModel, launchCount);
-        } else {
-          onLimitedLaunchesExceeded?.call(operationModel);
-        }
-        await _decrementCounter();
-        break;
-
-      case PaymentStatusEnum.ON_TRIAL:
-        final expiryDate = (await SharePreferenceService.getPaymentModel())?.expiryDate;
-        if (expiryDate != null && expiryDate.isAfter(DateTime.now())) {
-          onTrial?.call(operationModel);
-        } else {
-          onTrialExpire?.call(operationModel);
-        }
-        break;
-
-      default:
-        throw BackdoorFlutterException(
-          message: 'Unknown Status ${operationModel.status}',
-        );
+  static BackdoorFlutterException _convertException(dynamic exception) {
+    if (exception is BackdoorFlutterException) {
+      return exception;
+    } else if (exception is Error) {
+      return BackdoorFlutterException(
+        message: exception.toString(),
+        type: BackdoorFlutterExceptionType.UNKNOWN,
+        stackTrace: exception.stackTrace,
+      );
+    } else {
+      return BackdoorFlutterException(
+        message: exception.toString(),
+        type: BackdoorFlutterExceptionType.UNKNOWN,
+      );
     }
   }
 }

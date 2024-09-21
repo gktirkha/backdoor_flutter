@@ -16,3 +16,6 @@ linter:
     - prefer_relative_imports
     - require_trailing_commas
     - sort_pub_dependencies
+    - public_member_api_docs
+    - library_private_types_in_public_api
+    - dangling_library_doc_comments
