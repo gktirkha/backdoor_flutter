@@ -1,8 +1,8 @@
 name: backdoor_flutter
-version: 0.1.3
+version: 0.1.4
 homepage: https://github.com/gktirkha/backdoor_flutter/
 repository: https://github.com/gktirkha/backdoor_flutter/
-description: A Backdoor to check payment status for flutter apps
+description: The BackdoorFlutter library offers a comprehensive solution for managing payment statuses in Flutter applications. It provides functionalities to initialize app configurations, check payment status, and handle various scenarios like trial periods and limited launches. With customizable callbacks for different states (e.g., paid, unpaid, trial), robust error handling, and built-in logging, this library streamlines payment management while ensuring a smooth user experience. Ideal for developers seeking to integrate subscription and payment validation seamlessly into their apps.
 
 environment:
   sdk: ^3.5.2

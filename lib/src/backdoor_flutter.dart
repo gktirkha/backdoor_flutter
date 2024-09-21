@@ -97,6 +97,7 @@ abstract class BackdoorFlutter {
         return (currentCount == null || currentCount <= 0);
 
       case PaymentStatus.ON_TRIAL:
+        if (backdoorPaymentModel.checkDuringTrial == true) return true;
         final now = DateTime.now();
         final warningDate = backdoorPaymentModel.warningDate;
         final expiryDate = backdoorPaymentModel.expireDateTime;
@@ -104,7 +105,7 @@ abstract class BackdoorFlutter {
         if (warningDate != null && now.isAfter(warningDate) && now.isBefore(expiryDate)) {
           return true;
         } else {
-          return now.isBefore(expiryDate) ? backdoorPaymentModel.checkDuringTrial : true;
+          return now.isAfter(expiryDate);
         }
 
       case null:

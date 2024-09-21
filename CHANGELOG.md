@@ -6,3 +6,5 @@ Doc Changes
 Doc Fixes
 ## 0.1.3
 Doc Fixes
+## 0.1.4
+Fix: Force Check During Trial

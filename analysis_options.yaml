@@ -1,9 +1,5 @@
 include: package:flutter_lints/flutter.yaml
 analyzer:
-  errors:
-    constant_identifier_names: ignore
-    invalid_annotation_target: ignore
-
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
