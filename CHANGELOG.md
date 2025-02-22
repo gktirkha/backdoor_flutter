@@ -14,3 +14,5 @@ Fix: Force Check During Trial
 Attempt to Get Max Pub Score
 ## 1.0.0
 Readme Changes
+## 1.0.1
+LICENSE update
