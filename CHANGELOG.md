@@ -16,3 +16,5 @@ Attempt to Get Max Pub Score
 Readme Changes
 ## 1.0.1
 LICENSE update
+## 1.0.2
+LICENSE update
